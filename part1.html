@@ -1,0 +1,115 @@
+<!doctype html>
+<html>
+  <head>
+    <meta charset="utf-8">
+    <meta http-equiv="X-UA-Compatible" content="chrome=1">
+    <title>PHP101 - Down the rabbit hole</title>
+    <link rel="stylesheet" href="stylesheets/styles.css">
+    <link rel="stylesheet" href="stylesheets/pygment_trac.css">
+    <script src="https://ajax.googleapis.com/ajax/libs/jquery/1.7.1/jquery.min.js"></script>
+    <script src="javascripts/main.js"></script>
+    <!--[if lt IE 9]>
+      <script src="//html5shiv.googlecode.com/svn/trunk/html5.js"></script>
+    <![endif]-->
+    <meta name="viewport" content="width=device-width, initial-scale=1, user-scalable=no">
+
+  </head>
+  <body>
+
+      <header>
+        <h1>PHP101</h1>
+        <p>For the absolute beginner</p>
+      </header>
+
+      <div id="banner">
+        <span id="logo"></span>
+
+        <a href="https://github.com/ss23/php-tutorial" class="button fork"><strong>View On GitHub</strong></a>
+      </div><!-- end banner -->
+
+    <div class="wrapper">
+      <nav>
+        <ul>
+		<li><a href="index.html">Introduction</a></li>
+		<li><a href="part1.html">Down the rabbit hole - Part 1</a></li>
+		<li><a href="part2.html">Calling all operators - Part 2</a></li>
+		<li><a href="part3.html">Looping the loop - Part 3</a></li>
+		<li><a href="part4.html">The food factor - Part 4</a></li>
+		<li><a href="part5.html">Rank and file - Part 5</a></li>
+		<li><a href="part6.html">Functionally yours - Part 6</a></li>
+		<li><a href="part7.html">The bear necessities - Part 7</a></li>
+		<li><a href="part8.html">Databases and otters - Part 8</a></li>
+		<li><a href="part9.html">SQLite my fire! - Part 9</a></li>
+		<li><a href="part10.html">Sessions in cookie jars - Part 10</a></li>
+		<li><a href="part11.html">Sinfully simple - Part 11</a></li>
+		<li><a href="part12.html">Bugging out - Part 12</a></li>
+		<li><a href="part13.html">The trashman cometh - Part 13</a></li>
+		<li><a href="part14.html">Going to the polls - Part 14</a></li>
+		<li><a href="part15.html">No news is good news - Part 15</a></li>
+	</ul>
+      </nav>
+      <section>
+      	<h2>The only acronym you'll ever need</h2>
+      	<p>If you're new to Web development, you could be forgiven for thinking that it consists of no more than a mass of acronyms, each one more indecipherable thanthe last. ASP, CGI, SOAP, XML, HTTP - the list seems never-ending, and
+	the sheer volume of information on each of these can discourage the most avid programmer. But before you put on your running shoes and flee, there's a little secret you should know. To put together a cutting-edge Web site, chock full of all the latest bells and whistles, there's only one acronym you really need to know:</p>
+	<p>PHP</p>
+	<p>Now, while you have almost certainly heard of PHP, you may not be aware of just how powerful the language is, and how much it can do for you. Today, PHP has the enviable position of being the only open-source server-side scripting language that's both fun and easy to learn. This is not just advertising: recent surveys show that more than 16,000,000 Web sites use PHP as a server side scripting language, and the language also tops the list of most popular Apache modules.</p>
+	<p>Why, you ask? The short answer: it’s powerful, it’s easy to use, and
+	it’s free. Extremely robust and scalable, PHP can be used for the most
+	demanding of applications, and delivers excellent performance even at
+	high loads. Built-in database support means that you can begin creating
+	data-driven applications immediately, XML support makes it suitable for
+	the new generation of XML-enabled applications, and the extensible architecture
+	makes it easy for developers to use it as a framework to build their own
+	custom modules. Toss in a great manual, a knowledgeable developer community
+	and a really low price (can you spell f-r-e-e?) and you’ve got the makings
+	of a winner!</p>
+	<p>My goal in this series of tutorials is very simple: I’ll be
+	teaching you the basics of using PHP, and showing you why I think it’s
+	the best possible tool for Web application development today.
+	I’ll be making no assumptions about your level of knowledge,
+	other than that you can understand basic HTML and have a sense of
+	humor. And before you ask… Yes, this series covers both PHP 4 and
+	PHP 5, with new PHP 5 features flagged for easy reference.</p>
+	<p>Let's get going!</p>
+
+	<h2>The right enviroment</h2>
+	<p>PHP is typically used in combination with a Web server like Apache.
+	Requests for PHP scripts are received by the Web server, and are handled
+	by the PHP interpreter. The results obtained after execution are returned
+	to the Web server, which takes care of transmitting them to the client
+	browser. Within the PHP script itself, the sky’s the limit – your
+	script can perform calculations, process user input, interact with a
+	database, read and write files… Basically, anything you can do with a
+	regular programming language, you can do inside your PHP scripts.</p>
+	<p>From the above, it is clear that in order to begin using PHP, you
+	need to have a proper development environment set up.</p>
+	<p>This series will focus on using PHP with the Apache Web server on
+	Linux, but you can just as easily use PHP with Apache on Windows, UNIX
+	and Mac OS. Detailed instructions on how to set up this development
+	environment on each platform are available in the online manual, at
+	<a href="http://www.php.net/manual/en/installation.php">http://www.php.net/manual/en/installation.php</a> - or you can just download a copy of PHP 5 from
+	<a href="http://www.php.net">http://www.php.net</a> and read the installation instructions.</p>
+	<p>Go do that now, and come back when you’ve successfully installed and tested PHP.</p>
+
+	<h2>Start me up</h2>
+	<p>There’s one essential concept that you need to get your mind around
+	before we proceed further. Unlike CGI scripts, which require you to
+	write code to output HTML, PHP lets you embed PHP code in regular HTML
+	pages, and execute the embedded PHP code when the page is requested.</p>
+	<p>These embedded PHP commands are enclosed within special start and
+	end tags, like this:</p>
+	{% highlight php %}
+		<?php echo "lol"; ?>
+	{% endhighlight %}
+	<p>Here's a simple example that demonstrates how PHP and HTML can be combined</p>
+      </section>
+      <footer>
+        <p>Project maintained by <a href="https://github.com/ss23">ss23</a></p>
+        <p><small>Hosted on GitHub Pages &mdash; Theme by <a href="http://twitter.com/#!/michigangraham">mattgraham</a></small></p>
+      </footer>
+    </div>
+    <!--[if !IE]><script>fixScale(document);</script><!--<![endif]-->
+    
+  </body>
+</html>
