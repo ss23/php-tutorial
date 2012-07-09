@@ -102,10 +102,245 @@ title: Down the rabbit hole
 	pages, and execute the embedded PHP code when the page is requested.</p>
 	<p>These embedded PHP commands are enclosed within special start and
 	end tags, like this:</p>
-	{% highlight php %}
-<?php echo "lol"; ?>
-	{% endhighlight %}
-	<p>Here's a simple example that demonstrates how PHP and HTML can be combined</p>
+	{% highlight php %}<?php echo "lol"; ?>{% endhighlight %}
+	<p>Here's a simple example that demonstrates how PHP and HTML can be combined:</p>
+	{% highlight php %}<html>
+<head></head>
+<body>
+Agent: So who do you think you are, anyhow?
+<br>
+<?php
+// Print output
+echo 'Neo: I am Neo, but my people call me The One.';
+?>
+</body>
+</html>{% endhighlight %}
+        <p>Not quite your traditional “Hello, World” program… but then
+	again, I always thought tradition was over-rated.</p>
+	<p>Save the above script to a location under your Web server document root, with a
+	.php extension, and browse to it. You’ll see something like this:</p>
+	<img src="images/part1-ex1.png" alt="The resultant HTML">
+	<p>Look at the HTML source:</p>
+	{% highlight html %}<html>
+<head></head>
+<body>
+Agent: Who do you think you are, anyhow?
+<br>
+Neo: I am Neo, but my people call me The One.</body>
+</html>{% endhighlight %}
+	<p>What just happened? When you requested the script above, Apache intercepted
+	your request and handed it off to PHP. PHP then parsed the script,
+	executing the code between the <?php...?> marks and
+	replacing it with the output of the code run. The result was then handed
+	back to the server and transmitted to the client. Since the output contained
+	valid HTML, the browser was able to render it for display to the user.</p>
+	<p>A close look at the script will reveal the basic syntactical rules of PHP.
+	Every PHP statement ends in a semi-colon. This convention is identical to
+	that used in Perl, and omitting the semi-colon is one of the most common
+	mistakes newbies make. That said, it is interesting to note that a semi-colon
+	is not needed to terminate the last line of a PHP block. The
+	PHP closing tag includes a semi-colon, therefore the following is perfectly
+	valid PHP code:</p>
+	{% highlight php %}<?php
+// Print output
+echo 'Neo: I am Neo, but my people call me The One.';
+?>{% endhighlight %}
+	<p>It’s also possible to add comments to your PHP code, as I’ve done in
+	the example above. PHP supports both single-line and multi-line comment
+	blocks:</p>
+	{% highlight php %}<?php
+// This is a single-line comment
+/* This is a
+multi-line
+comment */
+?>{% endhighlight %}
+	<p>Blank lines within the PHP tags are ignored by the parser.
+	Everything outside the tags is also ignored by the parser, and returned
+	as-is. Only the code between the tags is read and executed.</p>
+
+	<h2>A case of identity</h2>
+	<p>Variables are the bread and butter of every programming language…
+	and PHP has them too. A variable can be
+	thought of as a programming construct used to store both numeric and
+	non-numeric data; the contents of a variable can be altered during
+	program execution. Finally, variables can be compared with each other,
+	and you – the programmer – can write code that performs
+	specific actions on the basis of this comparison.</p>
+	<p>PHP supports a number of different variable types: integers, floating
+	point numbers, strings and arrays. In many languages, it’s essential to
+	specify the variable type before using it: for example, a variable may
+	need to be specified as type integer or type array.
+	Give PHP credit for a little intelligence, though: it automagically
+	determines variable type by the context in which it is being used!</p>
+	<p>Every variable has a name. In PHP, a variable name is preceded by a
+	dollar ($) symbol and must begin with a letter or underscore, optionally
+	followed by more letters, numbers and/or underscores. For example, $popeye, $one and $INCOME are all valid PHP variable names, while $123 and $48hrs are invalid.</p>
+	<p>Note that variable names in PHP are case sensitive, so $me is
+	different from $Me or $ME.</p>
+	<p>Here’s a simple example that demonstrates PHP’s variables:</p>
+	{% highlight php %}<html>
+<head></head>
+<body>
+Agent: So who do you think you are, anyhow?
+<br>
+<?php
+// Define variables
+$name = 'Neo';
+$rank = 'Anomaly';
+$serialNumber = 1;
+// Print output
+echo "Neo: I am <b>$name</b>, the <b>$rank</b>. You can call me by my serial number, <b>$serialNumber</b>.";
+?>
+</body>
+</html>{% endhighlight %}
+	<p>Here, the variables $name, $rank and
+	$serialNumber are first defined with string and numeric
+	values, and then substituted in the echo() function call.
+	The echo() function, along with the print() function,
+	is commonly used to print data to the standard output device (here, the
+	browser). Notice that I’ve included HTML tags within the call to echo(),
+	and those have been rendered by the browser in its output. You can do this too. Really.</p>
+
+	<h2>An equal music</h2>
+	<p>To assign a value to a variable, you use the assignment
+	operator: the = symbol. This is used to assign a value
+	(the right side of the equation) to a variable (the left side). The
+	value being assigned need not always be fixed; it could also be another
+	variable, an expression, or even an expression involving other
+	variables, as below:</p>
+	{% highlight php %}<?php
+$age = $dob + 15;
+?>{% endhighlight %}
+	<p>Interestingly, you can also perform more than one assignment at a
+	time. Consider the following example, which assigns three variables the
+	same value simultaneously:</p>
+	{% highlight php %}<?php
+$angle1 = $angle2 = $angle3 = 60;
+?>{% endhighlight %}
+	
+	<h2>Not my type</h2>
+	<p>Every language has different types of variable – and PHP is no
+	exception. The language supports a wide variety of data types,
+	including simple numeric, character, string and Boolean types, and more
+	complex arrays and objects. Here’s a quick list of the basic ones, with
+	examples:</p>
+	<ul>
+		<li><strong>Boolean</strong>: The simplest variable type in PHP, a Boolean
+		variable, simply specifies a true or false value.
+		{% highlight php %}<?php
+$sexy = true;
+?>{% endhighlight %}</li>
+		<li><strong>Integer</strong>: An integer is a plain-vanilla whole number like 75, -95, 2000 or 1.
+		{% highlight php %}<?php
+$age = 21;
+?>{% endhighlight %}</li>
+		<li><strong>Floating-point</strong>: A floating-point number is typically a fractional
+		number such as 12.5 or 3.141592653589. Floating point numbers may be
+		specified using either decimal or scientific notation.
+		{% highlight php %}<?php
+$temperature = 21.5;
+?>{% endhighlight %}</li>
+		<li><strong>String</strong>: A string is a sequence of characters, like “hello” or
+		“abracadabra”. String values may be enclosed in either double quotes
+		(“”) or single quotes(”). (Quotation marks within the string itself can
+		be “escaped” with a backslash (\) character.) String values enclosed in
+		double quotes are automatically parsed for special characters and variable
+		names; if these are found, they are replaced with the appropriate value.
+		Here’s an example:
+		{% highlight php %}<?php
+<?php
+$identity = 'James Bond';
+$car = 'BMW';
+// This would contain the string "James Bond drives a BMW"
+$sentence = "$identity drives a $car";
+echo $sentence;
+?>{% endhighlight %}</li>
+	</ul>
+	<p>To learn more about PHP’s data types, visit <a href="http://www.php.net/manual/en/language.types.php">http://www.php.net/manual/en/language.types.php</a>.</p>
+
+	<h2>Market value</h2>
+	<p>If variables are the building blocks of a programming language,
+	operators are the glue that let you build something useful with
+	them. You’ve already seen one example of an operator – the
+	assignment operator -, which lets you assign a value to a
+	variable. Since PHP believes in spoiling you, it also comes with
+	operators for arithmetic, string, comparison and logical operations.</p>
+	<p>A good way to get familiar with operators is to use them to perform
+	arithmetic operations on variables, as in the following example:</p>
+	{% highlight php %}<html>
+<head></head>
+<body>
+<?php
+// Set quantity
+$quantity = 1000;
+// Set original and current unit price
+$origPrice = 100;
+$currPrice = 25;
+// Calculate the difference in price
+$diffPrice = $currPrice - $origPrice;
+// Calculate percentage change in price
+$diffPricePercent = (($currPrice - $origPrice) * 100)/$origPrice
+?>
+Quantity: <?php echo $quantity; ?><br>
+Cost Price: <?php echo $origPrice; ?><br>
+Current Price: <?php echo $currPrice; ?><br>
+Absolute change in price: <?php echo $diffPrice; ?><br>
+Percent change in price: <?php echo $diffPricePercent; ?><br>
+</body>
+</html>{% endhighlight %}
+	<p>Looks complex? Don’t be afraid – it’s actually pretty simple. The
+	meat of the script is at the top, where I’ve set up variables for the
+	unit cost and the quantity. Next, I’ve performed a bunch of calculations
+	using PHP’s various mathematical operators, and stored the results of
+	those calculations in different variables. The rest of the script is
+	related to the display of the resulting calculations in a neat table.</p>
+	<p>If you’d like, you can even perform an arithmetic operation
+	simultaneously with an assignment, by using the two operators together.
+	The two code snippets below are equivalent:</p>
+	{% highlight php %}<?php
+// This...
+$a = 5;
+$a = $a + 10;
+// ... is this same as this
+$a = 5;
+$a += 10;
+?>{% endhighlight %}
+	<p>If you don’t believe me, try echoing them both.</p>
+
+	<h2>Stringing things along</h2>
+	<p>Why stop with numbers? PHP also allows you to add strings with the string
+	concatenation operator, represented by a period (.). Take a look:</p>
+	{% highlight php %}<?php
+// Set up some variables
+$a = 'the';
+$b = 'games';
+$c = 'begin';
+$d = 'now';
+// Combine them using the concatination operator
+// This returns 'the games begin now<br>'
+$statement = $a.' '.$b.' '.$c.' '.$d.'<br>';
+print $statement;
+// This returns 'the games begin now!'
+$command = $c.' '.$a.' '.$b.' '.$d.'!';
+print $command;
+?>{% endhighlight %}
+	<p>As before, you can concatenate and assign simultaneously, as
+	below:</p>
+	{% highlight php %}<?php
+// Define string
+$str = 'the';
+// add and assign
+$str .= 'n';
+// $str now contains "then"
+echo $str;
+?>{% endhighlight %}
+	<p>To learn more about PHP’s arithmetic and string operators, visit
+	<a href="http://www.php.net/manual/en/language.operators.arithmetic.php">http://www.php.net/manual/en/language.operators.arithmetic.php</a> and
+	<a href="http://www.php.net/manual/en/language.operators.string.php">http://www.php.net/manual/en/language.operators.string.php</a>.</p>
+	<p>That’s about it for this tutorial. You now know all about the basic
+	building blocks and glue of PHP – its variables and operators. In
+	<a href="part2.html">Part Two</a> of this series, I’ll be using these
+	fundamental concepts to demonstrate PHP’s powerful form processing capabilities.</p>
       </section>
       <footer>
         <p>Project maintained by <a href="https://github.com/ss23">ss23</a></p>
