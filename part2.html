@@ -1,0 +1,413 @@
+---
+title: Calling all operators
+---
+<!doctype html>
+<html>
+  <head>
+    <meta charset="utf-8">
+    <meta http-equiv="X-UA-Compatible" content="chrome=1">
+    <title>PHP101 - {{ page.title }}</title>
+    <link rel="stylesheet" href="stylesheets/styles.css">
+    <link rel="stylesheet" href="stylesheets/pygment_trac.css">
+    <script src="https://ajax.googleapis.com/ajax/libs/jquery/1.7.1/jquery.min.js"></script>
+    <script src="javascripts/main.js"></script>
+    <!--[if lt IE 9]>
+      <script src="//html5shiv.googlecode.com/svn/trunk/html5.js"></script>
+    <![endif]-->
+    <meta name="viewport" content="width=device-width, initial-scale=1, user-scalable=no">
+
+  </head>
+  <body>
+
+      <header>
+        <h1>PHP101</h1>
+        <p>For the absolute beginner</p>
+      </header>
+
+      <div id="banner">
+        <span id="logo"></span>
+
+        <a href="https://github.com/ss23/php-tutorial" class="button fork"><strong>View On GitHub</strong></a>
+      </div><!-- end banner -->
+
+    <div class="wrapper">
+      <nav>
+        <ul>
+		<li><a href="index.html">Introduction</a></li>
+		<li><a href="part1.html">Down the rabbit hole - Part 1</a></li>
+		<li><a href="part2.html">Calling all operators - Part 2</a></li>
+		<li><a href="part3.html">Looping the loop - Part 3</a></li>
+		<li><a href="part4.html">The food factor - Part 4</a></li>
+		<li><a href="part5.html">Rank and file - Part 5</a></li>
+		<li><a href="part6.html">Functionally yours - Part 6</a></li>
+		<li><a href="part7.html">The bear necessities - Part 7</a></li>
+		<li><a href="part8.html">Databases and otters - Part 8</a></li>
+		<li><a href="part9.html">SQLite my fire! - Part 9</a></li>
+		<li><a href="part10.html">Sessions in cookie jars - Part 10</a></li>
+		<li><a href="part11.html">Sinfully simple - Part 11</a></li>
+		<li><a href="part12.html">Bugging out - Part 12</a></li>
+		<li><a href="part13.html">The trashman cometh - Part 13</a></li>
+		<li><a href="part14.html">Going to the polls - Part 14</a></li>
+		<li><a href="part15.html">No news is good news - Part 15</a></li>
+	</ul>
+      </nav>
+      <section>
+      	<h2>Not what you expected</h2>
+	<p>In <a href="part1.html">Part One</a> of this series, I gave you a
+	brief introduction to PHP, and how it fits into your Web application development
+	environment. I also taught you the basics of PHP variables, and showed you how
+	to add, multiply and concatenate them together.</p>
+	<p>Now that you know the basics, it’s time to focus in on one of PHP’s
+	nicer features – its ability to automatically receive user input from
+	a Web form and convert it into PHP variables. If you’re used to writing
+	Perl code to retrieve form values in your CGI scripts, PHP’s simpler
+	approach is going to make you weep with joy. So get that handkerchief
+	out, and scroll on down.</p>
+
+	<h2>Form...</h2>
+	<p>Forms have always been one of quickest and easiest ways to add interactivity to your Web site. A form allows you to ask customers if they like your products, casual visitors for comments on your site, and pretty girls for their phone numbers. And PHP can simplify the task of processing the data generated from a Web-based form substantially, as this first example demonstrates.</p>
+	<p>This example contains two scripts, one containing an HTML form (named form.htm) and the other containing the form processing logic (message.php). Here’s form.htm:</p>
+	{% highlight php %}<html>
+<head></head>
+<body>
+<form action="message.php" method="post">
+	Enter your message: <input type="text" name="msg" size="30">
+	<input type="submit" value="Send">
+</form>
+</body>
+</html>{% endhighlight %}
+	<p>The critical line in this page is the {% highlight %}form{% endhighlight %} tag</p>
+	<p>As you probably already know, the “action” attribute of the
+	{% highlight %}form{% endhighlight %} tag specifies the name of the server-side script
+	(message.php in this case) that will process the information entered
+	into the form. The “method” attribute specifies how the
+	information will be passed.</p>
+
+	<h2>... And function</h2>
+	<p>Now for the other half of the puzzle: the message.php script. This
+	script reads the data submitted by the user and “does something with
+	it”. Here is message.php:</p>
+	{% highlight php %}<html>
+<head></head>
+<body>
+<?php
+// Retrive form data
+$input = $_POST['msg'];
+// Use it
+echo "You said: <i>$input</i>";
+?>
+</body>
+</html>{% endhighlight %}
+	<p>When you enter some data into form.htm (let’s say “Boo”), and
+	submit it, the form processor message.php will read it and display it to
+	you (“You said: Boo“). Thus, whenever a form is submitted to a PHP script,
+	all variable-value pairs within that form automatically become available for use
+	within the script, through a special PHP container variable: $_POST.
+	You can then access the value of the form variable by using its “name” inside the $_POST container, as I did in the script above.</p>
+	<p>Obviously, PHP also supports the GET method of form submission. All
+	you need to do is change the “method” attribute to “get”, and retrieve
+	values from $_GET instead of $_POST. The
+	$_GET and $_POST variables are actually a special type of PHP animal called an array, which I’ll be
+	teaching you about shortly. Don’t worry too much about it at the
+	moment, just make sure you’re comfortable with retrieving simple values
+	from a form with PHP, and then scroll on down to learn about some more
+	operators that are useful in this context.</p>
+
+	<h2>Operating with extreme caution</h2>
+	<p>Thus far, the scripts we’ve discussed have been pretty dumb. All
+	they’ve done is add numbers and strings, and read back to you the data
+	you typed in yourself – not exactly overwhelming. In order to add some
+	intelligence to your scripts, you need to know how to construct what
+	geeks call a “conditional statement” – a statement which lets your
+	script perform one of a series of possible actions based on the result
+	of a comparison test. And since the basis of a conditional statement is
+	comparison, you first need to know how to compare two variables and
+	determine whether they’re identical or different.</p>
+	<p>You’ve already seen some of PHP’s arithmetic and string operators.
+	However, the language also comes with operators designed specifically
+	to compare two values: the so-called “comparison operators”. Here’s an
+	example that demonstrates them in action:</p>
+	{% highlight php %}<?php
+/* Define some variables */
+$mean = 9;
+$median = 10;
+$mode = 9;
+// Less-than operator
+// Returns true if left side is less than right side
+// Returns true here
+$result = ($mean < $median);
+print "result is $result<br>";
+// Greater-than operator
+// Returns true if left side is greater than right side
+// Returns false here
+$result = ($mean > $median);
+print "result is $result<br>";
+// Less-than-or-equal-to operator
+// Returns true if left side is less than or equal to right side
+// Returns false here;
+$result = ($median <= $mode);
+print "result is $result<br>";
+// Greater-than-or-equal-to operator
+// Returns true if left side is greater than or equal to right side
+// Returns true here
+$result = ($median >= $mode);
+print "result is $result<br>";
+// Equality operator
+// Returns true if left side is equal to right side
+// Returns true here
+$result = ($mean == $mode);
+print "result is $result<br>";
+// Not-equal operator
+// Returns true if left side is not equal to right side
+// Returns false here
+$result = ($mean != $mode);
+print "result is $result<br>";
+// Inequality operator
+// Returns true if left side is not equal to right
+// Returns false here
+$result = ($mean <> $mode);
+print "result is $result<br>";
+?>{% endhighlight %}
+	<p>The result of a comparison test is always Boolean: either true (1)
+	or false (0 – which doesn’t print anything). This makes comparison
+	operators an indispensable part of your toolkit, as you can use them in
+	combination with a conditional statement to send a script down any of
+	its multiple action paths.</p>
+	<p>PHP 4.0 also introduced a new comparison operator, which
+	allows you to test both for equality and type: the === operator.
+	The following example demonstrates it:</p>
+	{% highlight php %}<?php
+/* Define two variables */
+$str = '10';
+$int = 10;
+/* Returns true, since both variables contain the same value */
+$result = ($str == $int);
+print "result is $result<br>";
+/* Returns false, since the variables are not of the same type even though they have the same value */
+$result = ($str === $int);
+print "result is $result<br>";
+/* Returns true, since the variables are the same type and value */
+$anotherInt = 10;
+$result = ($anotherInt === $int);
+print "result is $result";
+?>{% endhighlight %}
+	<p>Read more about PHP’s comparison operators at <a href="http://www.php.net/manual/en/language.operators.comparison.php">http://www.php.net/manual/en/language.operators.comparison.php</a>.</p>
+
+	<h2>A question of logic</h2>
+	<p>In addition to the comparison operators I used so liberally above,
+	PHP also provides four logical operators, which are designed to group
+	conditional expressions together. These four operators – logical AND,
+	logical OR, logical XOR and logical NOT – are illustrated in the following example:</p>
+	{% highlight php %}<?php
+/* Define some variables */
+$auth = 1;
+$status = 1;
+$role = 4;
+/* logical AND returns true if all conditions are true */
+// returns true
+$result = (($auth == 1) && ($status != 0));
+print "result is $result<br>";
+/* logical OR returns true if any condition is true */
+// returns true
+$result = (($status == 1) || ($role <= 2));
+print "result is $result<br>";
+/* logical NOT returns true if the condition is false and vice-versa */
+// returns false
+$result = !($status == 1);
+print "result is $result<br>";
+/* logical XOR returns true if either of two conditions are true, or returns false if both conditions are true */
+// returns false
+$result = (($status == 1) xor ($auth == 1));
+print "result is $result<br>";
+?>{% endhighlight %}
+	<p>Logical operators play an important role in building conditional
+	statements, as they can be used to link together related conditions
+	simply and elegantly. View more examples of how they can be used at
+	<a href="http://www.php.net/manual/en/language.operators.logical.php">http://www.php.net/manual/en/language.operators.logical.php</a>.</p>
+
+	<h2>Older but not wiser</h2>
+	<p>Now that you’ve learnt all about comparison and logical operators, I
+	can teach you about conditional statements. As noted earlier, a
+	conditional statement allows you to test whether a specific condition
+	is true or false, and perform different actions on the basis of the
+	result. In PHP, the simplest form of conditional statement is the if()
+	statement, which looks something like this:</p>
+	{% highlight php %}<?php
+if (condition) {
+	// Do something
+}
+?>{% endhighlight %}
+	<p>The argument to if()is a conditional expression, which evaluates to
+	either true or false. If the statement evaluates to true, all PHP code
+	within the curly braces is executed; if it does not, the code within
+	the curly braces is skipped and the lines following the if() construct
+	are executed.</p>
+	<p>Let me show you how the if() statement works by combining it with a
+	form. In this example, the user is asked to enter his or her age.</p>
+	{% highlight php %}<html>
+<head></head>
+<body>
+<form action="ageist.php" method="post">
+	Enter your age: <input name="age" size="2">
+</form>
+</body>
+</html>{% endhighlight %}
+	<p>Depending on whether the entered age is above or below 21, a
+	different message is displayed by the ageist.php script:</p>
+	{% highlight php %}<html>
+<head></head>
+<body>
+<?php
+// retrieve form data
+$age = $_POST['age'];
+// check entered value and branch
+if ($age >= 21) {
+	echo 'Come on in, we have alcohol and music awaiting you!';
+}
+if ($age < 21) {
+	echo "You're too young for this club, come back when you're a little older";
+}
+?>
+</body>
+</html>{% endhighlight %}
+	
+	<h2>If not this, then what?</h2>
+	<p>In addition to the if() statement, PHP also offers the if-else construct, used to define a block of code that gets executed when the
+	conditional expression in the if() statement evaluates as false.</p>
+	<p>The if-else construct looks like this:</p>
+	{% highlight php %}<?php
+if (condition) {
+	// Do something
+} else {
+	// Do something else
+}
+?>{% endhighlight %}
+	<p>This construct can be used to great effect in the last example: we
+	can combine the two separate if()statements into a single
+	if-else statement.</p>
+	{% highlight php %}<html>
+<head></head>
+<body>
+<?php
+// retrieve form data
+$age = $_POST['age'];
+// check entered value and branch
+if ($age >= 21) {
+	echo 'Come on in, we have alcohol and music awaiting you!';
+} else {
+	echo "You're too young for this club, come back when you're a little older";
+}
+?>
+</body>
+</html>{% endhighlight %}
+	
+	<h2>Spreading confusion</h2>
+	<p>If the thought of confusing people who read your code makes you feel
+	warm and tingly, you’re going to love the ternary operator, represented
+	by a question mark (?). This operator, which lets you make your
+	conditional statements almost unintelligible, provides shortcut syntax for creating
+	a single-statement if-else block. So, while you could do this:</p>
+	{% highlight php %}<?php
+if ($numTries > 10) {
+	$msg = 'Blocking your account...';
+} else {
+	$msg = 'Welcome!';
+}
+?>{% endhighlight %}
+	<p>You could also do this, which is equivalent (and a lot more fun):</p>
+	{% highlight php %}<?php
+$msg = $numTries > 10 ? 'Blocking your account...' : 'Welcome!';
+?>{% endhighlight %}
+	<p>PHP also lets you “nest” conditional statements inside each other.
+	For example, this is perfectly valid PHP code:</p>
+	{% highlight php %}<?php
+if ($day == 'Thursday') {
+	if ($time == '0800') {
+		if ($country == 'UK') {
+			$meal = 'bacon and eggs';
+		}
+	}
+}
+?>{% endhighlight %}
+	<p>Another, more elegant way to write the above is with a series of
+	logical operators:</p>
+	{% highlight php %}<?php
+if ($day == 'Thursday' && $time == '0800' && $country == 'UK') {
+	$meal = 'bacon and eggs';
+}
+?>{% endhighlight %}
+	
+	<h2>The daily special</h2>
+	<p>PHP also provides you with a way of handling multiple possibilities:
+	the if-elseif-else construct. A typical if-elseif-else statement
+	block would look like this:</p>
+	{% highlight php %}<?php
+if (condition) {
+	// Do something
+} else if (condition) {
+	// Do something
+} else if (condition) {
+	// Do something
+} else {
+	// Do something
+}
+?>{% endhighlight %}
+	<p>And here’s an example that demonstrates how to use it:</p>
+	{% highlight php %}<html>
+<head></head>
+<body>
+<h2>Today's Special</h2>
+<form method="get" action="cooking.php">
+	<select name="day">
+		<option value="1">Monday/Wednesday
+		<option value="2">Tuesday/Thursday
+		<option value="3">Friday/Sunday
+		<option value="4">Saturday
+	</select>
+	<input type="submit" value="Send">
+</form>
+</body>
+</html>{% endhighlight %}
+	<p>As you can see, this is simply a form which allows you to pick a day
+	of the week. The real work is done by the PHP script cooking.php:</p>
+	{% highlight php %}<html>
+<head></head>
+<body>
+<?php
+// get form selection
+$day = $_GET['day'];
+// check value and select appropriate item
+if ($day == 1) {
+	$special = 'Chicken in oyster sauce';
+} else if ($day == 2) {
+	$special = 'French onion soup';
+} else if ($day == 3) {
+	$special = 'Pork chops with mashed potatoes and green salad';
+} else {
+	$special = 'Fish and chips';
+}
+?>
+<h2>Today's special is:</h2>
+<?php echo $special; ?>
+</body>
+</html>{% endhighlight %}
+	<p>In this case, I’ve used the if-elseif-else control structure to
+	assign a different menu special to each combination of days. Note that
+	as soon as one of the if() branches within the block is found to be
+	true, PHP will execute the corresponding code, skip the remaining if() statements in the block, and jump immediately to the lines following
+	the entire if-elseif-else block.</p>
+	<p>And that’s it for now. To view more examples of conditional
+	statements in action, visit <a href="http://www.php.net/manual/en/language.control-structures.php">http://www.php.net/manual/en/language.control-structures.php</a>. In
+	<a href="part3.html">Part Three</a> , I’ll be bringing you more control
+	structures, more operators and more strange and wacky scripts – so make sure
+	you don’t miss it!</p>
+
+      </section>
+      <footer>
+        <p><small>Hosted on GitHub Pages &mdash; Theme by <a href="http://twitter.com/#!/michigangraham">mattgraham</a></small></p>
+      </footer>
+    </div>
+    <!--[if !IE]><script>fixScale(document);</script><!--<![endif]-->
+    
+  </body>
+</html>
