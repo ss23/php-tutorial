@@ -1,0 +1,596 @@
+---
+title: Template -- Bugging out
+---
+<!doctype html>
+<html>
+  <head>
+    <meta charset="utf-8">
+    <meta http-equiv="X-UA-Compatible" content="chrome=1">
+    <title>PHP101 - {{ page.title }}</title>
+    <link rel="stylesheet" href="stylesheets/styles.css">
+    <link rel="stylesheet" href="stylesheets/pygment_trac.css">
+    <script src="https://ajax.googleapis.com/ajax/libs/jquery/1.7.1/jquery.min.js"></script>
+    <script src="javascripts/main.js"></script>
+    <!--[if lt IE 9]>
+      <script src="//html5shiv.googlecode.com/svn/trunk/html5.js"></script>
+    <![endif]-->
+    <meta name="viewport" content="width=device-width, initial-scale=1, user-scalable=no">
+
+  </head>
+  <body>
+
+      <header>
+        <h1>PHP101</h1>
+        <p>For the absolute beginner</p>
+      </header>
+
+      <div id="banner">
+        <span id="logo"></span>
+
+        <a href="https://github.com/ss23/php-tutorial" class="button fork"><strong>View On GitHub</strong></a>
+      </div><!-- end banner -->
+
+    <div class="wrapper">
+      <nav>
+        <ul>
+		<li><a href="index.html">Introduction</a></li>
+		<li><a href="part1.html">Down the rabbit hole - Part 1</a></li>
+		<li><a href="part2.html">Calling all operators - Part 2</a></li>
+		<li><a href="part3.html">Looping the loop - Part 3</a></li>
+		<li><a href="part4.html">The food factor - Part 4</a></li>
+		<li><a href="part5.html">Rank and file - Part 5</a></li>
+		<li><a href="part6.html">Functionally yours - Part 6</a></li>
+		<li><a href="part7.html">The bear necessities - Part 7</a></li>
+		<li><a href="part8.html">Databases and otters - Part 8</a></li>
+		<li><a href="part9.html">SQLite my fire! - Part 9</a></li>
+		<li><a href="part10.html">Sessions in cookie jars - Part 10</a></li>
+		<li><a href="part11.html">Sinfully simple - Part 11</a></li>
+		<li><a href="part12.html">Bugging out - Part 12</a></li>
+		<li><a href="part13.html">The trashman cometh - Part 13</a></li>
+		<li><a href="part14.html">Going to the polls - Part 14</a></li>
+		<li><a href="part15.html">No news is good news - Part 15</a></li>
+	</ul>
+      </nav>
+      <section>
+      	<h2>Fire-proofing your code</h2>
+	<p>Even the best developers make mistakes sometimes. That’s why most programming languages
+	- including PHP – come with built-in capabilities to catch errors and take remedial
+	action. This action can be as simple as displaying an error message, or as complex as
+	sending the site administrator an email with a complete stack trace.</p>
+	<p>To make it easier to do this, PHP comes with a full-featured error handling API that can
+	be used to trap and resolve errors. In addition to deciding which types of errors a user
+	sees, you can also replace the built-in error handling mechanism with your own custom (and
+	usually more creative) functions. If you’re using PHP 5, you get a bonus: a spanking-new
+	exception model, which lets you wrap your code in Java-like try-catch() blocks
+	for more efficient error handling.</p>
+	<p>In this edition of PHP 101, I’m going to discuss all these things, giving you a crash course
+	in how to add error-handling to your PHP application. Keep reading – this is pretty cool stuff!</p>
+
+	<h2>Rogues gallery</h2>
+	<p>Before we get into the nitty-gritty of how to write an error handler, you need to know a
+	little theory.</p>
+	<p>Normally, when a PHP script encounters an error, it displays a message indicating the cause
+	of the error and may also (depending on how serious the error is) terminate script execution.
+	Now, while this behaviour is acceptable during the development phase, it cannot continue once
+	a PHP application has been released to actual users. In “live” situations, it is unprofessional
+	to display cryptic error messages (which are usually incomprehensible to non-technical users);
+	it is more professional to intercept these errors and either resolve them (if resolution is
+	possible), or notify the user with an easily-understood error message (if not).</p>
+	<p>There are three basic types of runtime errors in PHP:</p>
+	<ol>
+		<li>Notices: These are trivial, non-critical errors that PHP encounters while
+		executing a script – for example, accessing a variable that has not yet been defined.
+		By default, such errors are not displayed to the user at all – although, as you will see,
+		you can change this default behaviour.</li>
+		<li>Warnings: These are more serious errors – for example, attempting to
+		include() a file which does not exist. By default, these errors are displayed
+		to the user, but they do not result in script termination.</li>
+		<li>Fatal errors: These are critical errors – for example, instantiating an object
+		of a non-existent class, or calling a non-existent function. These errors cause the
+		immediate termination of the script, and PHP’s default behaviour is to display them to the
+		user when they take place.</li>
+	</ol>
+	<p>It should be noted that a syntax error in a PHP script – for example, a missing brace
+	or semi-colon – is treated as a fatal error and results in script termination. That’s
+	why, if you forget a semi-colon at the end of one of your PHP statements, PHP will refuse
+	to execute your script until you correct the mistake.</p>
+	<p>PHP errors can be generated by the Zend engine, by PHP built-in functions, or by user-defined
+	functions. They may occur at startup, at parse-time, at compile-time or at run-time.
+	Internally, these variations are represented by twelve different error types (as of PHP 5),
+	and you can read about them at
+	<a href="http://www.php.net/manual/en/ref.errorfunc.php">http://www.php.net/manual/en/ref.errorfunc.php</a>. Named constants like
+	E_NOTICE and E_USER_ERROR provide a convenient way to reference
+	the different error types.</p>
+	<p>A quick tip here: most of the time, you’ll be worrying about run-time errors
+	(E_NOTICE, E_WARNING and E_ERROR) and
+	user-triggered errors (E_USER_NOTICE, E_USER_WARNING and
+	E_USER_ERROR). During the debug phase, you can use the shortcut
+	E_ALL type to see all fatal and non-fatal errors generated by your script,
+	and in PHP 5 you might also want to use the new E_STRICT error type to view
+	errors that affect the forward compatibility of your code.</p>
+
+	<h2>Early warning</h2>
+	<p>With the theory out of the way, let’s now apply it to some examples. Consider the
+	following code snippet:</p>
+	{% highlight php %}<?php
+// initialize the $string variable
+$string = 'a string';
+// explode() a string
+// this will generate a warning or E_WARNING because the number of arguments to explode() is incorrect
+explode($string);
+?>{% endhighlight %}
+	<p>If you run this script, you’ll get a non-fatal error (E_WARNING), which
+	means that if you had statements following the call to explode(), they
+	would still get executed. Try it for yourself and see!</p>
+	<p>To generate a fatal error, you need to put in a bit more work. Take a look at this:</p>
+	{% highlight php %}<?php
+// call a non-existent function
+// this will generate a fatal error (E_ERROR)
+callMeJoe();
+?>{% endhighlight %}
+	<p>Here, the call to a non-existent function trips all of PHP’s alarm wires and generates a
+	fatal error, which immediately stops script execution.</p>
+	<p>Now, here’s the interesting bit. You can control which errors are displayed to the user,
+	by using a built-in PHP function called error_reporting(). This
+	function accepts a named constant, and tells the script to report only errors that
+	match that type. To see this in action, consider the following rewrite of one of the
+	earlier scripts to “hide” non-fatal errors:</p>
+	{% highlight php %}<?php
+// report only fatal errors
+error_reporting(E_ERROR);
+// initialize the $string variable
+$string = 'string';
+// attempt to explode() a string
+// this will not generate a warning because only fatal errors are reported
+explode($string);
+?>{% endhighlight %}
+	<p>In this case, when the script executes, no warning will be generated even though the call
+	to explode() contains one less argument than it should.</p>
+	<p>You can use a similar technique to turn off the display of fatal errors:</p>
+	{% highlight php %}<?php
+// report no fatal errors
+error_reporting(~E_ERROR);
+// call a non-existent function
+callMeJoe();
+?>{% endhighlight %}
+	<p>Keep in mind, though, that just because the error isn’t being reported doesn’t mean it
+	isn’t occurring. Although the script above will not display a visible error message, script
+	execution will still stop at the point of error and statements subsequent to that point will
+	not be executed. error_reporting() gives you control over which errors are
+	displayed; it doesn’t prevent the errors themselves.</p>
+	<p>Note that there are further settings within php.ini that should be used on production
+	sites. You can (and should) turn off display_errors, stipulate an
+	error_log file and switch on log_errors.</p>
+	<p>Note also that the approach used above to hide error messages, although extremely simple, is
+	not recommended for general use. It is poor programming practice to trap all errors,
+	regardless of type, and ignore them; it is far better – and more professional – to anticipate
+	the likely errors ahead of time, and write defensive code that watches for them and handles
+	them appropriately. This will prevent your users from finding themselves staring at an
+	unexplained blank page when something goes wrong.</p>
+
+	<h2>Rolling your own</h2>
+	<p>With this in mind, let’s talk a little bit about changing the way errors are handled.
+	Consider a typical PHP error message: it lists the error type, a descriptive message,
+	and the name of the script that generated the error. Most of the time, this is more
+	than sufficient… but what if your boss is a demanding customer, and insists that
+	there must be a “better way”?</p>
+	<p>Well, there is. It’s a little function called set_error_handler(), and it
+	allows you to divert all PHP errors to a custom function that you’ve defined, instead
+	of sending them to the default handler. This custom function must be capable of
+	accepting a minimum of two mandatory arguments (the error type and corresponding
+	descriptive message) and up to three additional arguments (the file name and line
+	number where the error occurred and a dump of the variable space at the time of error).</p>
+	<p>The following example might make this clearer:</p>
+	{% highlight php %}<?php
+// define a custom error handler
+set_error_handler('oops');
+// initialize the $string variable
+$string = 'a string';
+// explode() a string
+// this will generate a warning because the number of arguments to explode() is incorrect
+// the error will be caught by the custom error handler
+explode($string);
+// custom error handler
+function oops($type, $msg, $file, $line, $context) {
+	echo "<h1>Error!</h1>";
+	echo "An error occurred while executing this script. Please contact the <a href=mailto:webmaster@somedomain.com>webmaster</a> to report this error.";
+	echo "<p />";
+	echo "Here is the information provided by the script:";
+	echo "<hr><pre>";
+	echo "Error code: $type<br />";
+	echo "Error message: $msg<br />";
+	echo "Script name and line number of error: $file:$line<br />";
+	$variable_state = array_pop($context);
+	echo "Variable state when error occurred: ";
+	print_r($variable_state);
+	echo "</pre><hr>";
+}
+?>{% endhighlight %}
+	<p>The set_error_handler() function tells the script that all errors are to
+	be routed to my user-defined oops() function. This function is set up to
+	accept five arguments: error type, message, file name, line number, and an array
+	containing a lot of information about the context that the error occurred in (including
+	server and platform, as well as script information). The final element of the context
+	array contains the current value of the guilty variable. These arguments are then used
+	to create an error page that is friendlier and more informative than PHP’s standard
+	one-line error message.</p>
+	<p>You can use this custom error handler to alter the error message the user sees, on the
+	basis of the error type. Take a look at the next example, which demonstrates this technique:</p>
+	{% highlight php %}<?php
+// define a custom error handler
+set_error_handler('oops');
+// initialize $string variable
+$string = 'a string';
+// this will generate a warning
+explode($string);
+// custom error handler
+function oops($type, $msg, $file, $line, $context) {
+	switch ($type) {
+		// notices
+		case E_NOTICE:
+			// do nothing
+			break;
+		// warnings
+		case E_WARNING:
+			// report error
+			print "Non-fatal error on line $line of $file: $msg <br />";
+			break;
+		// other
+		default:
+			print "Error of type $type on line $line of $file: $msg <br />";
+			break;
+	}
+}
+?>{% endhighlight %}
+	<p>Note that certain error types can’t be handled in this way. For example, a fatal
+	E_ERROR will prevent the PHP script from continuing, therefore it can
+	never reach a user-created error-handling mechanism. See 
+	<a href="http://www.php.net/set-error-handler">http://www.php.net/set-error-handler</a> for more information on this.</p>
+
+	<h2>Pulling the trigger</h2>
+	<p>So far we've been talking about handling errors generated by PHP itself, but why stop there? PHP allows you to use its built-in error handling system to raise your own custom errors as well.</p>
+	<p>This is accomplished via a function named trigger_error(), which allows you to raise any of the three error types reserved for users: E_USER_NOTICE, E_USER_WARNING and E_USER_ERROR. When these errors are triggered, PHP's built-in handler will automatically wake up to handle them.</p>
+	{% highlight php %}<?php
+// function to test a number
+// generates E_USER_WARNING if number is a float
+// generates E_USER_ERROR is number is negative
+function testNumber($num) {
+    // float
+    // trigger a warning
+    if (is_float($num)) {
+        trigger_error("Number $num is not an integer", E_USER_WARNING);
+    }
+
+    // negative
+    // trigger a fatal error
+    if ($num < 0) {
+        trigger_error("Number $num is negative", E_USER_ERROR);
+    }
+}
+
+// test the function with different values
+testNumber(100);
+testNumber(5.6);
+testNumber(-8);
+?>{% endhighlight %}
+	<p>If you'd like to have a custom error handler to handle your custom errors... well, you're just hard to please, aren't you? Take a look at this next example, which rewrites the previous script to use a user-defined error handler:</p>
+	{% highlight php %}<?php
+<?php
+// function to test a number
+// generates E_USER_WARNING if number is a float
+// generates E_USER_ERROR is number is negative
+function testNumber($num) {
+    // float
+    // trigger a warning
+    if (is_float($num)) {
+        trigger_error("Number $num is not an integer", E_USER_WARNING);
+    }
+
+    // negative
+    // trigger a fatal error
+    if ($num < 0) {
+        trigger_error("Number $num is negative", E_USER_ERROR);
+    }
+}
+
+// custom error handler
+function myErrorHandler($type, $msg, $file, $line, $context) {
+    switch ($type) {
+
+        // warnings
+        case E_USER_WARNING:
+            // report error
+            print "Non-fatal error on line $line of $file: $msg <br />";
+            break;
+
+        // fatals
+        case E_USER_ERROR:
+            // report error and die()
+            die("Fatal error on line $line of $file: $msg <br />");
+            break;
+
+        // notices
+        default:
+            // do nothing
+            break;
+    }
+}
+
+// set the name of the custom handler
+set_error_handler('myErrorHandler');
+
+// test the function with different values
+testNumber(100);
+testNumber(5.6);
+testNumber(-8);
+?>{% endhighlight %}
+	<p>Note that it is the responsibility of the custom handler to die() in the event of user-generated fatal errors - PHP will not do this automatically.</p>
+	<p>You can use the same method to deal with exceptions too. Scroll on down, and let me show you how.</p>
+
+	<h2>Catching up</h2>
+	<p>If you're using PHP 5.x, you also have an alternative to the techniques discussed so far in the new Exception model (exception is Geek for error). Exceptions are new to PHP (although they've been in languages like Java and Python for ages) and they're stirring up a great deal of excitement.</p>
+	<p>In the exception-based approach, program code is wrapped in a try() block, and exceptions generated by it are "caught" and resolved by a catch() block. Multiple catch() blocks are possible, each one dealing with a different error type; this allows developers to trap different types of errors and execute appropriate exception-handling.</p>
+	<p>Here's what a typical try-catch() block looks like:</p>
+	{% highlight php %}<?php
+try {
+    execute this block
+}
+catch (exception type 1) {
+    execute this block to resolve exception type 1
+}
+catch (exception type 2) {
+    execute this block to resolve exception type 2
+}
+... and so on ...
+?>{% endhighlight %}
+	<p>When PHP encounters code wrapped within a try-catch() block, it first attempts to execute the code within the try() block. If this code is processed without any exceptions being generated, control transfers to the lines following the try-catch() block. However, if an exception is generated while running the code within the try() block, PHP stops execution of the block at that point and begins checking each catch() block to see if there is a handler for the exception. If a handler is found, the code within the appropriate catch() block is executed; if not, a fatal error is generated. It is even possible to handle that fatal error in a nice way using exceptions.</p>
+	<p>The exceptions themselves are generated via PHP's throw statement. The throw statement needs to be passed a descriptive message, and an optional error code. When the exception is raised, this description and code will be made available to the exception handler.</p>
+	<p>Wanna see how this works? Here's an example:</p>
+	{% highlight php %}<?php
+// PHP 5
+
+error_reporting(0);
+
+// try this code
+try {
+    $file = 'somefile.txt';
+
+    // open file
+    if (!$fh = fopen($file, 'r')) {
+        throw new Exception('Could not open file!');
+    }
+
+    // read file contents
+    if (!$data = fread($fh, filesize($file))) {
+        throw new Exception('Could not read file!');
+    }
+
+    // close file
+    fclose($fh);
+
+    // print file contents
+    echo $data;
+}
+
+// catch errors if any
+catch (Exception $e) {
+    print 'Something bad just happened...';
+}
+?>{% endhighlight %}
+	<p>If the file doesn't exist or is unreadable, the throw statement will generate an exception (basically, an instance of PHP's built-in Exception object) and pass it a message describing the error. When such an exception is generated, control passes to the first catch() block. If the catch() block can handle the exception type, the code within the catch() block is executed. If the first catch() block cannot handle the generated exception, control passes to the next one.</p>
+	<p>Don't worry too much about "exception types" at this point - all will be explained shortly. For the moment, all you need to know is that the generic catch() block above will catch all exceptions, regardless of type.</p>
+	<p>Now, there's one problem with the previous listing. Although the catch() block will trap the exception and print a message, it can't display the descriptive message sent by the throw statement with the exception. To access this message, as well as a couple of other interesting pieces of information, it is necessary to use some of the Exception object's built-in methods. Take a look at this revision of the previous script, which illustrates:</p>
+	{% highlight php %}<?php
+<?php
+// PHP 5
+
+error_reporting(0);
+
+// try this code
+try {
+    $file = 'somefile.txt';
+
+    // open file
+    if (!$fh = fopen($file, 'r')) {
+        throw new Exception('Could not open file!', 12);
+    }
+
+    // read file contents
+    if (!$data = fread($fh, filesize($file))) {
+        throw new Exception('Could not read file!', 9);
+    }
+
+    // close file
+    fclose($fh);
+
+    // print file contents
+    echo $data;
+}
+// catch errors if any
+catch (Exception $e) {
+    print '<h2>Exception</h2>';
+    print 'Error message: ' . $e->getMessage() . '<br />';
+    print 'Error code: ' . $e->getCode() . '<br />';
+    print 'File and line: ' . $e->getFile() . '(' . $e->getLine() . ')<br />';
+    print 'Trace: ' . $e->getTraceAsString() . '<br />';
+}
+?>{% endhighlight %}
+	<p>When you run this script, you'll see that the message generated by the exception handler contains:</p>
+	<ul>
+		<li>the descriptive data sent by throw,</li>
+		<li>an error code (also sent by throw),</li>
+		<li>the file name and line number where the exception occurred, and</li>
+		<li>a stack trace indicating the exception's progress through the class hierarchy, if there is one.</li>
+	</ul>
+	<p>This data is generated by calling the Exception object's getMessage(), getCode(), getFile(), getLine() and getTraceAsString() methods respectively inside the catch() block.</p>
+
+	<h2>Adding some class</h2>
+	<p>You can handle different exceptions in different ways, by sub-classing the generic Exception object and using more than one catch() block. The following example is a simple illustration of this:</p>
+	{% highlight php %}<?php
+<?php
+// PHP 5
+
+// sub-class the Exception class
+class NegativeNumException extends Exception {}
+class OutOfRangeException extends Exception {}
+class FloatException extends Exception {}
+
+// function to test a number
+function testNumber($num) {
+    // float
+    // trigger an exception
+    if (is_float($num)) {
+        throw new FloatException($num);
+    }
+
+    // negative
+    // trigger an exception
+    if ($num < 0) {
+        throw new NegativeNumException($num);
+    }
+
+    // out of range
+    // trigger an exception
+    if ($num > 1000 || $num < 100) {
+        throw new OutOfRangeException($num);
+    }
+}
+
+// try this code
+try {
+    testNumber(-19);
+}
+
+// catch errors, if any
+catch (NegativeNumException $e) {
+    print 'A negative number was provided ('.$e->getMessage().'). Please provide a positive integer between 100 and 1000.<br />';
+}
+catch (OutOfRangeException $e) {
+    print 'The number provided is out of range ('.$e->getMessage().'). Please provide a positive integer between 100 and 1000.<br />';
+}
+catch (FloatException $e) {
+    print 'The number provided is not an integer ('.$e->getMessage().'). Please provide a positive integer between 100 and 1000.<br />';
+}
+catch (Exception $e) {
+    print 'Error message: ' . $e->getMessage() . '<br />';
+    print 'Error code: ' . $e->getCode() . '<br />';
+    print 'File and line: ' . $e->getFile() . '(' . $e->getLine() . ')<br />';
+    print 'Trace: ' . $e->getTraceAsString() . '<br />';
+}
+?>{% endhighlight %}
+	<p>In this case, I've created three new Exception sub-classes from the base object, one for each possible error. Next, I've set up catch() blocks for each exception type, and written exception-handling code that is specific to each type. Depending on which exception occurs (you can generate different ones by sending the testNumber() function different values), the appropriate catch() block will be invoked and a different error message will be printed.</p>
+	<p>Note that because PHP will always use the first catch() block that matches the exception type, and because the generic Exception class matches all exceptions, the catch() blocks must be arranged in the order of most specific first. This has been done in the example above, where the generic catch() block appears last on the list.</p>
+	<p>Here's another example, this one illustrating a more useful application - using the exception model in a user authentication class to provide easy-to-understand error handling (I'll assume here that the passwords in the password file are encrypted with MD5, and use a 12-character salt beginning with $1$). Take a look:</p>
+	{% highlight php %}<?php
+<?php
+// PHP 5
+// class definition
+class userAuth {
+    // define properties
+    private $username;
+    private $passwd;
+    private $passwdFile;
+    private $userFound;
+
+    // constructor
+    // must be passed username and non-encrypted password
+    public function __construct($username, $password) {
+            $this->username = $username;
+            $this->passwd = $password;
+    }
+
+    // set .htaccess-style file to check for passwords
+    public function setPasswdFile($file) {
+        $this->passwdFile = $file;
+    }
+
+    // perform password verification
+    public function authenticateUser() {
+        // check that the file exists
+        if (!file_exists($this->passwdFile)) {
+            throw new FileException("Password file cannot be found: " . $this->passwdFile);
+        }
+
+        // check that the file is readable
+        if (!is_readable($this->passwdFile)) {
+            throw new FileException("Unable to read password file: ". $this->passwdFile);
+        }
+
+        // read file
+        $data = file($this->passwdFile);
+    
+        // define flag
+        $this->userFound = 0;
+        
+        // iterate through file
+        foreach ($data as $line) {
+            $arr = explode(":", $line);
+            // if username matches, test password
+            if ($arr[0] == $this->username) {
+                $this->userFound = 1;
+                // encrypt the supplied password and 
+                // match it against value in password file
+                if ($arr[1] == crypt($this->passwd, $arr[1])) {
+                    echo "User was authenticated";
+                    // do some other stuff
+                }
+                // otherwise return exception
+                else {
+                    throw new AuthException("Incorrect password");
+                    break;
+                }
+            }
+        }
+        
+        // could not find a username match
+        // return exception
+        if ($this->userFound == 0) {
+                throw new AuthException("No such user");
+        }
+    }
+// end class definition
+}
+
+// subclass exceptions
+class FileException extends Exception {};
+class AuthException extends Exception {};
+
+// try the code
+try {
+    // create instance
+    $ua = new userAuth("joe", "secret");
+
+    // set password file
+    $ua->setPasswdFile("password.txt");
+
+    // perform authentication
+    $ua->authenticateUser();
+
+}
+// catch authentication failures, if any
+catch (FileException $e) {
+    // print file errors
+    print "A file error occurred. ".$e->getMessage();
+}
+catch (AuthException $e) {
+    // an authentication error occurred
+    print "An authentication error occurred. ".$e->getMessage();
+    // more normally, redirect to new page on auth errors, e.g.
+    // header ('Location: login_fail.php');
+}
+catch (Exception $e) {
+    print "An unknown error occurred";
+}
+?>{% endhighlight %}
+	<p>Here, depending on the type of error, either a FileException() or an AuthException() will be generated - and handled by the corresponding catch() block. Notice how easy the exception handling framework is to read and extend. It's precisely this ease of use and extensibility that helps the new PHP 5 model score over the earlier, more primitive techniques of handling application errors.</p>
+	<p>That's about it for the moment. Come back soon, for more PHP 101!</p>
+
+      </section>
+      <footer>
+        <p><small>Hosted on GitHub Pages &mdash; Theme by <a href="http://twitter.com/#!/michigangraham">mattgraham</a></small></p>
+      </footer>
+    </div>
+    <!--[if !IE]><script>fixScale(document);</script><!--<![endif]-->
+    
+  </body>
+</html>
