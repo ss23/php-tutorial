@@ -1,0 +1,838 @@
+---
+title: The bear necessities
+---
+<!doctype html>
+<html>
+  <head>
+    <meta charset="utf-8">
+    <meta http-equiv="X-UA-Compatible" content="chrome=1">
+    <title>PHP101 - {{ page.title }}</title>
+    <link rel="stylesheet" href="stylesheets/styles.css">
+    <link rel="stylesheet" href="stylesheets/pygment_trac.css">
+    <script src="https://ajax.googleapis.com/ajax/libs/jquery/1.7.1/jquery.min.js"></script>
+    <script src="javascripts/main.js"></script>
+    <!--[if lt IE 9]>
+      <script src="//html5shiv.googlecode.com/svn/trunk/html5.js"></script>
+    <![endif]-->
+    <meta name="viewport" content="width=device-width, initial-scale=1, user-scalable=no">
+
+  </head>
+  <body>
+
+      <header>
+        <h1>PHP101</h1>
+        <p>For the absolute beginner</p>
+      </header>
+
+      <div id="banner">
+        <span id="logo"></span>
+
+        <a href="https://github.com/ss23/php-tutorial" class="button fork"><strong>View On GitHub</strong></a>
+      </div><!-- end banner -->
+
+    <div class="wrapper">
+      <nav>
+        <ul>
+		<li><a href="index.html">Introduction</a></li>
+		<li><a href="part1.html">Down the rabbit hole - Part 1</a></li>
+		<li><a href="part2.html">Calling all operators - Part 2</a></li>
+		<li><a href="part3.html">Looping the loop - Part 3</a></li>
+		<li><a href="part4.html">The food factor - Part 4</a></li>
+		<li><a href="part5.html">Rank and file - Part 5</a></li>
+		<li><a href="part6.html">Functionally yours - Part 6</a></li>
+		<li><a href="part7.html">The bear necessities - Part 7</a></li>
+		<li><a href="part8.html">Databases and otters - Part 8</a></li>
+		<li><a href="part9.html">SQLite my fire! - Part 9</a></li>
+		<li><a href="part10.html">Sessions in cookie jars - Part 10</a></li>
+		<li><a href="part11.html">Sinfully simple - Part 11</a></li>
+		<li><a href="part12.html">Bugging out - Part 12</a></li>
+		<li><a href="part13.html">The trashman cometh - Part 13</a></li>
+		<li><a href="part14.html">Going to the polls - Part 14</a></li>
+		<li><a href="part15.html">No news is good news - Part 15</a></li>
+	</ul>
+      </nav>
+      <section>
+      	<h2>Alphabet Soup</h2>
+	<p>So now you know how to create your own functions in PHP, and
+	you’ve spent the last few days busily inspecting your applications and
+	turning repeated code fragments into functions. But functions are just
+	the tip of the software abstraction iceberg. Lurking underneath is a
+	three-letter acronym that strikes fear into the hearts of most newbie
+	programmers.</p>
+	<p>OOP.</p>
+	<p>If you’ve been programming for a while, you’ve probably heard the
+	term OOP before – it stands for Object Oriented Programming, and refers
+	to a technique whereby you create program “objects”
+	and then use these objects to build the functionality you need into
+	your program. PHP 5 is very big on OOP – it comes with a
+	brand-spanking-new object model which finally brings PHP objects into
+	conformance with standard OOP principles and offers OO programmers a
+	whole bunch of new goodies to play with.</p>
+	<p>Wondering how you can get in on this? Well, wonder no more. Your
+	prayers have been answered.</p>
+	<p>Over the course of this tutorial, I’m going to take a
+	brief look at PHP’s OO capabilities (both PHP 4 and PHP 5), together
+	with examples and explanations to demonstrate just how powerful it
+	really is. I’ll be covering most of the basics – classes, objects,
+	attributes and methods – and a couple of more advanced concepts -
+	constructors, destructors, private methods and properties, and
+	inheritance. And if you’re new to object-oriented programming, or just
+	apprehensive about what lies ahead, don’t worry – I promise this will
+	be a lot less painful than you think. And unlike dentists, I don’t lie.</p>
+
+	<h2>Back to class</h2>
+	<p>Before beginning, though, let’s make sure that you have a clear idea
+	of the concepts involved here.</p>
+	<p>In PHP, a class is simply a set of program statements which
+	perform a specific task. A typical class definition contains both
+	variables and functions, and serves as the template from which to spawn
+	specific instances of that class.</p>
+	<p>These specific instances of a class are referred to as
+	objects. Every object has certain characteristics, or
+	properties, and certain pre-defined functions, or
+	methods. These properties and methods of the object correspond
+	directly with the variables and functions within the class
+	definition.</p>
+	<p>Once a class has been defined, PHP allows you to spawn as many
+	instances of the class as you like. Each of these instances is a
+	completely independent object, with its own properties and methods, and
+	can therefore be manipulated independently of other objects. This comes in
+	handy in situations where you need to spawn more than one instance of
+	an object – for example, two simultaneous database links for two
+	simultaneous queries, or two shopping carts.</p>
+	<p>Classes also help you keep your code modular – you can define a
+	class in a separate file, and include that file only in the scripts
+	where you plan to use the class – and simplify code changes, since you
+	only need to edit a single file to add new functionality to all your
+	spawned objects.</p>
+
+	<h2>Animal Antics</h2>
+	<p>To understand this better, pick an animal, any animal. I pick the
+	bear, because I like bears. Now ask yourself, can you consider this
+	bear, within the framework of OOP, as an “object”?</p>
+	<p>Why not? After all, every bear has certain characteristics – age,
+	weight, sex – which are equivalent to object properties. And every bear
+	can perform certain activities – eat, sleep, walk, run, mate – all of
+	which are equivalent to object methods.</p>
+	<p>Let’s take it a little further. Since all bears share certain
+	characteristics, it is possible to conceive of a template Bear(), which
+	defines the basic characteristics and abilities of every bear on the
+	planet. Once this Bear() (“class”) is used to create a new $bear (“object”), the individual characteristics of the newly-created
+	Bear can be manipulated independently of other Bears that may be created
+	from the template.</p>
+	<p>Now, if you sat down to code this class in PHP 5,
+	it would probably look something like this:</p>
+	{% highlight php %}<?php
+// PHP 5
+// class definition
+class Bear {
+	// define properties
+	public $name;
+	public $weight;
+	public $age;
+	public $sex;
+	public $colour;
+	// define methods
+	public function eat() {
+		echo $this->name . "is eating...";
+	}
+	public function run() {
+		echo $this->name . "is running...";
+	}
+	public function kill() {
+		echo $this->name." is killing prey...";
+	}
+	public function sleep() {
+		echo $this->name." is sleeping...";
+	}
+}
+?>{% endhighlight %}
+	<p>Given this class, it’s now simple to spawn as many Bears as you
+	like, and adjust the individual properties of each. Take a look:</p>
+	{% highlight php %}<?php
+// my first bear
+$daddy = new Bear;
+// give him a name
+$daddy->name = "Daddy Bear";
+// how old is he
+$daddy->age = 8;
+// what sex is he
+$daddy->sex = "male";
+// what colour is his coat
+$daddy->colour = "black";
+// how much does he weigh
+$daddy->weight = 300;
+// give daddy a wife
+$mommy = new Bear;
+$mommy->name = "Mommy Bear";
+$mommy->age = 7;
+$mommy->sex = "female";
+$mommy->colour = "black";
+$mommy->weight = 310;
+// and a baby to complete the family
+$baby = new Bear;
+$baby->name = "Baby Bear";
+$baby->age = 1;
+$baby->sex = "male";
+$baby->colour = "black";
+$baby->weight = 180;
+// a nice evening in the Bear family
+// daddy kills prey and brings it home
+$daddy->kill();
+// mommy eats it
+$mommy->eat();
+// and so does baby
+$baby->eat();
+// mommy sleeps
+$mommy->sleep();
+// and so does daddy
+$daddy->sleep();
+// baby eats some more
+$baby->eat();
+?>{% endhighlight %}
+	<p>As the illustration above shows, once new objects are defined, their
+	individual methods and variables can be accessed and modified
+	independent of each other. This comes in very handy, as the rest of this
+	tutorial will show.</p>
+
+	<h2>Going deeper</h2>
+	<p>Now that you’ve got the concepts straight, let’s take a look at the
+	nitty-gritty of a class definition.</p>
+	{% highlight php %}<?php
+// PHP 5
+// class definition
+class Bear {
+	// define public properties
+	public $name;
+	public $age;
+	// more properties
+	// define public methods
+	public function eat() {
+		echo $this->name." is eating...";
+		// more code
+	}
+	// more methods
+}
+?>{% endhighlight %}
+	<p>Every class definition begins with the keyword class, followed by a
+	class name. You can give your class any name that strikes your fancy,
+	so long as it doesn’t collide with a reserved PHP word. A pair of curly
+	braces encloses all class variables and functions, which are written as
+	you would normally code them.</p>
+	<p>PHP 5 also introduces the concept of visibility to the object model.
+	Visibility controls the extent to which object properties and methods
+	can be manipulated by the caller, and plays an important role in
+	defining how open or closed your class is. Three levels of visibility
+	exist, ranging from most visible to least visible: public, private and protected. Within the class definition, you can
+	mark the visibility of a property or method by preceding
+	it with one of the keywords – public,
+	private, or protected.</p>
+	<p>By default, class methods and properties are public; this allows the
+	calling script to reach inside your object instances and manipulate
+	them directly. If you don’t like the thought of this intrusion, you can
+	mark a particular property or method as private or protected,
+	depending on how much control you want to cede over the object’s internals (more
+	on this shortly).</p>
+	<p>Since the PHP 4 object model does not include
+	support for visibility, the class definition above would not work in
+	PHP 4. Instead, you would need to use the following:</p>
+	{% highlight php %}<?php
+// PHP 4
+// class definition
+class Bear {
+	// define properties
+	var $name;
+	var $weight;
+	var $age;
+	var $sex;
+	var $colour;
+	// define methods
+	function eat() {
+		echo $this->name." is eating...";
+	}
+	function run() {
+		echo $this->name." is running...";
+	}
+	function kill() {
+		echo $this->name." is killing prey...";
+	}
+	function sleep() {
+		echo $this->name." is sleeping...";
+	}
+}
+?>{% endhighlight %}
+	<p>From the above, it should be clear that class properties and methods in PHP
+	4 are always public …and there ain’t nuttin’ you can do about that!</p>
+	<p>In order to create a new instance of a class, you use the new
+	keyword to assign the newly created object to a PHP variable.</p>
+	{% highlight php %}<?php
+$daddy = new Bear;
+?>{% endhighlight %}
+	<p>In English, the above would mean “create a new object of class
+	Bear() and assign it to the variable $daddy “.</p>
+	<p>You can now access all the methods and properties of the class via
+	this variable. For example, the code</p>
+	{% highlight php %}<?php
+$daddy->name = "Daddy Bear";
+?>{% endhighlight %}
+	<p>would mean “assign the value Daddy Bear to the variable $name of
+	this specific instance of the class Bear()“, while the statement</p>
+	{% highlight php %}<?php
+$daddy->sleep();
+?>{% endhighlight %}
+	<p>would mean “execute the function sleep() for this specific instance
+	of the class Bear()“.</p>
+	<p>Note the -> symbol used to connect objects to their properties or
+	methods, and the fact that the $ symbol is omitted when accessing
+	properties of a class instance.</p>
+
+	<h2>This and that</h2>
+	<p>In case you need to access functions or variables within the class
+	definition itself, both PHP 4 and PHP 5 offer the $this
+	keyword, which is used to refer to “this” class. To see how this works,
+	let’s alter the eat() method to accept a number of food units and then
+	add that to the bear’s weight.</p>
+	{% highlight php %}<?php
+// PHP 5
+// class definition
+class Bear {
+	// define properties
+	public $name;
+	public $weight;
+	// define methods
+	public function eat($units) {
+		echo $this->name." is eating ".$units." units of food...";
+		$this->weight += $units;
+	}
+}
+?>{% endhighlight %}
+	<p>In this case, the $this prefix indicates that the variable to be
+	modified exists within the class – or, in English, “add the argument
+	provided to eat() to the variable $weight within this object”. The
+	$this prefix thus provides a convenient way to access variables and
+	functions which are “local” to the class.</p>
+	<p>Here’s an example of how it works:</p>
+	{% highlight php %}<?php
+// create instance
+$baby = new Bear;
+$baby->name = "Baby Bear";
+$baby->weight = 1000;
+// now create another instance
+// this one has independent values for each property
+$brother = new Bear;
+$brother->name = "Brother Bear";
+$brother->weight = 1000;
+// retrieve properties
+echo $baby->name." weighs ".$baby->weight." units";
+echo $brother->name." weighs ".$brother->weight." units";
+// call eat()
+$baby->eat(100);
+$baby->eat(50);
+$brother->eat(11);
+// retrieve new values
+echo $baby->name." now weighs ".$baby->weight." units";
+echo $brother->name." now weighs ".$brother->weight." units";
+?>{% endhighlight %}
+	<p>The output of this will read:</p>
+	<pre>Baby Bear weighs 1000 units
+Brother Bear weighs 1000 units
+Baby Bear is eating 100 units of food...
+Baby Bear is eating 50 units of food...
+Brother Bear is eating 11 units of food...
+Baby Bear now weighs 1150 units
+Brother Bear now weighs 1011 units</pre>
+	
+	<h2>Under construction</h2>
+	<p>It’s also possible to automatically execute a function when the
+	class is called to create a new object. This is referred to in geek
+	lingo as a constructor and, in order to use it, your PHP 5
+	class definition must contain a special function, __construct().</p>
+	<p>For example, if you’d like all newly born bears to be brown and weigh
+	100 units, you could add this to your class definition:</p>
+	{% highlight php %}<?php
+// PHP 5
+// class definition
+class Bear {
+	// define properties
+	public $name;
+	public $weight;
+	public $age;
+	public $colour;
+
+	// constructor
+	public function __construct() {
+		$this->age = 0;
+		$this->weight = 100;
+		$this->colour = "brown";
+	}
+	// define methods
+}
+?>{% endhighlight %}
+	<p>In PHP 4, your constructor must have the same name as the class.
+	Here’s the equivalent code for PHP 4:</p>
+	{% highlight php %}<?php
+// PHP 4
+// class definition
+class Bear {
+	// define properties
+	var $name;
+	var $weight;
+	var $age;
+	var $colour;
+	// constructor
+	function Bear() {
+		$this->age = 0;
+		$this->weight = 100;
+		$this->colour = "brown";
+	}
+	// define methods
+}
+?>{% endhighlight %}
+	<p>Now, try creating and using an instance of the class:</p>
+	{% highlight php %}<?php
+// create instance
+$baby = new Bear;
+$baby->name = "Baby Bear";
+echo $baby->name." is ".$baby->colour." and weighs ".$baby->weight." units at birth";
+?>{% endhighlight %}
+	<p>Here, the constructor automatically sets default properties every
+	time an object of the class is instantiated. Therefore, when you run
+	the script above, you will see this:</p>
+	<pre>Baby Bear is brown and weighs 100 units at birth</pre>
+
+	<h2>Hands off</h2>
+	<p>As noted previously, PHP 5 makes it possible to mark class
+	properties and methods as private, which means that they cannot be
+	manipulated or viewed outside the class definition. This is useful to
+	protect the inner workings of your class from manipulation by object
+	instances. Consider the following example, which illustrates this by adding
+	a new private variable, $_lastUnitsConsumed,
+	to the Bear() class:</p>
+	{% highlight php %}<?php
+// PHP 5
+// class definition
+class Bear {
+	// define properties
+	public $name;
+	public $age;
+	public $weight;
+	private $_lastUnitsConsumed;
+	// constructor
+	public function __construct() {
+		$this->age = 0;
+		$this->weight = 100;
+		$this->_lastUnitsConsumed = 0;
+	}
+
+	// define methods
+	public function eat($units) {
+		echo $this->name." is eating ".$units." units of food...";
+		$this->weight += $units;
+		$this->_lastUnitsConsumed = $units;
+	}
+	public function getLastMeal() {
+		echo "Units consumed in last meal were ".$this->_lastUnitsConsumed."";
+	}
+}
+?>{% endhighlight %}
+	<p>Now, since the $_lastUnitsConsumed variable is declared as private,
+	any attempt to modify it from an object instance will fail. Here is an
+	example:</p>
+	{% highlight php %}<?php
+$bob = new Bear;
+$bob->name = "Bobby Bear";
+$bob->eat(100);
+$bob->eat(200);
+echo $bob->getLastMeal();
+// the next line will generate a fatal error
+$bob->_lastUnitsConsumed = 1000;
+?>{% endhighlight %}
+	<p>In a similar way, class methods can also be marked as private - try
+	it out for yourself and see.</p>
+
+	<h2>Extending yourself</h2>
+	<p>Two of the best things about OOP, whether in PHP 4 or in PHP 5, are
+	extensibility and inheritance. Very simply, this means that you can
+	create a new class based on an existing class, add new features (read:
+	properties and methods) to it, and then create objects based on this
+	new class. These objects will contain all the features of the original
+	parent class, together with the new features of the child class.</p>
+	<p>As an illustration, consider the following PolarBear() class, which
+	extends the Bear() class with a new method.</p>
+	{% highlight php %}<?php
+// PHP 5
+// class definition
+class Bear {
+	// define properties
+	public $name;
+	public $weight;
+	public $age;
+	public $sex;
+	public $colour;
+	// constructor
+	public function __construct() {
+		$this->age = 0;
+		$this->weight = 100;
+	}
+	// define methods
+	public function eat($units) {
+		echo $this->name." is eating ".$units." units of food...";
+		$this->weight += $units;
+	}
+	public function run() {
+		echo $this->name." is running...";
+	}
+	public function kill() {
+		echo $this->name." is killing prey...";
+	}
+	public function sleep() {
+		echo $this->name." is sleeping...";
+	}
+}
+
+// extended class definition
+class PolarBear extends Bear {
+	// constructor
+	public function __construct() {
+		parent::__construct();
+		$this->colour = "white";
+		$this->weight = 600;
+	}
+	// define methods
+	public function swim() {
+		echo $this->name." is swimming...";
+	}
+}
+?>{% endhighlight %}
+	<p>The extends keyword is used to extend a parent class to a child
+	class. All the functions and variables of the parent class immediately
+	become available to the child class. This is clearly visible in the
+	following code snippet:</p>
+	{% highlight php %}<?php
+// create instance of Bear()
+$tom = new Bear;
+$tom->name = "Tommy Bear";
+// create instance of PolarBear()
+$bob = new PolarBear;
+$bob->name = "Bobby Bear";
+// $bob can use all the methods of Bear() and PolarBear()
+$bob->run();
+$bob->kill();
+$bob->swim();
+// $tom can use all the methods of Bear() but not PolarBear()
+$tom->run();
+$tom->kill();
+$tom->swim();
+?>{% endhighlight %}
+	<p>In this case, the final call to $tom->swim() will fail and cause
+	an error, because the Bear() class does not contain a swim() method.
+	However, none of the calls to $bob->run() or $bob->kill() will
+	fail, because as a child of the Bear() class, PolarBear() inherits all
+	the methods and properties of its parent.</p>
+	<p>Note how the parent class constructor has been called in the
+	PolarBear() child class constructor - it's a good idea to do this so
+	that all necessary initialization of the parent class is carried out when a
+	child class is instantiated. Child-specific initialization can then be
+	done in the child class constructor. Only if a child class does not
+	have a constructor, is the parent class constructor automatically called.</p>
+	<p>You can do this in PHP 4, too. Here's a PHP 4 version of the PolarBear
+	class definition:</p>
+	{% highlight php %}<?php
+// PHP 4
+// extended class definition
+class PolarBear extends Bear {
+	// constructor
+	function PolarBear() {
+		parent::Bear();
+		$this->colour = "white";
+		$this->weight = 600;
+	}
+	// define methods
+	function swim() {
+		echo $this->name." is swimming...";
+	}
+}
+?>{% endhighlight %}
+	<p>To prevent a class or its methods from being inherited, use the
+	final keyword before the class or method name (this is new in PHP 5
+	and will not work in older versions of PHP). Here's an example, which
+	renders the Bear() class un-inheritable (if that's actually a
+	word):</p>
+	{% highlight php %}<?php
+// PHP 5
+// class definition
+final class Bear {
+	// define properties
+	// define methods
+}
+// extended class definition
+// this will fail because Bear() cannot be extended
+class PolarBear extends Bear {
+	// define methods
+}
+// create instance of PolarBear()
+// this will fail because Bear() could not be extended
+$bob = new PolarBear;
+$bob->name = "Bobby Bear";
+echo $bob->weight;
+?>{% endhighlight %}
+	
+	<h2>Ending on a high note</h2>
+	<p>Just as there are constructors, so also are there
+	destructors. Destructors are object methods which are called
+	when the last reference to an object in memory is destroyed, and they
+	are usually tasked with clean-up work – for example, closing database
+	connections or files, destroying a session and so on. Destructors are
+	only available in PHP 5, and must be named __destruct().
+	Here’s an example:</p>
+	{% highlight php %}<?php
+// PHP 5
+// class definition
+class Bear {
+	// define properties
+	public $name;
+	public $weight;
+	public $age;
+	public $sex;
+	public $colour;
+	// constructor
+	public function __construct() {
+		$this->age = 0;
+		$this->weight = 100;
+		$this->colour = "brown";
+	}
+
+	// destructor
+	public function __destruct() {
+		echo $this->name." is dead. He was ".$this->age." years old and ".$this->weight." units heavy. Rest in peace!";
+	}
+
+	// define methods
+	public function eat($units) {
+		echo $this->name." is eating ".$units." units of food...";
+		$this->weight += $units;
+	}
+	public function run() {
+		echo $this->name." is running...";
+	}
+	public function kill() {
+		echo $this->name." is killing prey...";
+	}
+}
+
+// create instance of Bear()
+$daddy = new Bear;
+$daddy->name = "Daddy Bear";
+$daddy->age = 10;
+$daddy->kill();
+$daddy->eat(2000);
+$daddy->run();
+$daddy->eat(100);
+?>{% endhighlight %}
+	<p>Here, once the script ends, no reference will exist for $daddy, and
+	so the destructor will be called automatically. The output would look like this:</p>
+	<pre>Daddy Bear is killing prey...
+Daddy Bear is eating 2000 units of food...
+Daddy Bear is running...
+Daddy Bear is eating 100 units of food...
+Daddy Bear is dead. He was 10 years old and 2200 units heavy. Rest in peace!</pre>
+	
+	<h2>Discovering new things</h2>
+	<p>PHP 4 and PHP 5 come with a bunch of functions designed to let you
+	discover object properties and methods, and find out which class an
+	object belongs to. The first two of these are the get_class()
+	and get_parent_class() functions, which tell you the name of
+	the classes which spawned a particular object. Consider the following
+	class definition:</p>
+	{% highlight php %}<?php
+// PHP 5
+// base class
+class Bear {
+	public $name;
+	public $weight;
+	// constructor
+	public function __construct() {
+	}
+
+	// define methods
+	public function eat() {
+	}
+
+	public function run() {
+	}
+
+	public function sleep() {
+	}
+}
+
+// derived class
+class GrizzlyBear extends Bear {
+	public function kill() {
+	}
+}
+?>{% endhighlight %}
+	<p>And now consider the following script, which uses get_class() and
+	get_parent_class() to retrieve the class name from an instance:</p>
+	{% highlight php %}<?php
+$joe = new GrizzlyBear;
+$joe->name = "Joe Bear";
+$joe->weight = 1000;
+echo "Class: " . get_class($joe);
+echo "Parent class: " . get_parent_class(get_class($joe));
+?>{% endhighlight %}
+	<p>You can view all the properties exposed by a class with
+	get_class_vars(), and all its methods with get_class_methods()
+	function. To view properties of the specific object instance, use
+	get_object_vars() instead of get_class_vars().
+	Here is an example:</p>
+	{% highlight php %}<?php
+// create instance
+$joe = new GrizzlyBear;
+$joe->name = "Joe Bear";
+$joe->weight = 1000;
+// get class name
+$className = get_class($joe);
+// get class properties
+echo "Class properties:";
+print_r(get_class_vars($className));
+// get class methods
+echo "Class Methods";
+print_r(get_class_methods($className));
+// get this instance's properties
+echo "Instance properties:";
+print_r(get_object_vars($joe));
+?>{% endhighlight %}
+	<p>and here is some sample output:</p>
+	<pre>Class properties:
+Array
+(
+	[name] => 
+	[weight] => 
+)
+
+Class methods:
+Array
+(
+	[0] => kill
+	[1] => __construct
+	[2] => eat
+	[3] => run
+	[4] => sleep
+)
+
+Instance properties:
+Array
+(
+	[name] => Joe Bear
+	[weight] => 1000
+)</pre>
+	<p>As noted in one of the previous segments of this tutorial, the
+	print_r() function allows you to look inside any PHP variable,
+	including an object. It’s extremely useful, so note it down for future
+	reference.</p>
+
+	<h2>Access denied</h2>
+	<p>And now that you know the basics of how objects work in PHP, let’s wrap this up with a real-world example. Consider the following userAuth() class, which exposes methods to validate a user login using an encrypted password file such as /etc/passwd or .htaccess, both of which are used on Unix systems (i.e. most of the Internet). I’ll assume here that the passwords in the password file are encrypted with MD5, and use a 12-character salt beginning with $1$:</p>
+	{% highlight php %}<?php
+// PHP 5
+// class definition
+class userAuth {
+	// define properties
+	public $username;
+	private $passwd;
+	private $passwdFile;
+	private $_resultCode;
+	// constructor
+	// must be passed username and password
+	public function __construct($username, $password) {
+		$this->username = $username;
+		$this->passwd = $password;
+		$this->_resultCode = -1;
+	}
+
+	// used to set file to read for password data
+	public function setPasswdFile($file) {
+		$this->passwdFile = $file;
+	}
+
+	// returns: -1 if user does not exist
+	//           0 if user exists but password is incorrect
+	//           1 if username and password are correct
+	public function getResultCode() {
+		return $this->_resultCode;
+	}
+
+	public function authenticateUser() {
+		// make sure that the script has permission to read this file!
+		$data = file($this->passwdFile);
+		// iterate through file
+		foreach ($data as $line) {
+			$arr = explode(":", $line);
+			// if username matches
+			// test password
+			if ($arr[0] == $this->username) {
+				// if match, user/pass combination is correct
+				// return 1
+				if ($arr[1] == crypt($this->passwd, $arr[1])) {
+					$this->_resultCode = 1;
+					break;
+				} else {
+					// otherwise return 0
+					$this->_resultCode = 0;
+					break;
+				}
+			}
+		}
+	}
+}
+// end class definition
+?>{% endhighlight %}
+	<p>Most of this should be clear to you from the examples in previous
+	pages. In case it isn’t, the following script should help you
+	understand what’s happening:</p>
+	{% highlight php %}<?php
+// create instance
+$ua = new userAuth("joe", "secret");
+// set password file
+$ua->setPasswdFile("passwd.txt");
+// perform authentication
+$ua->authenticateUser();
+// check result code and display message
+switch ($ua->getResultCode()) {
+	case -1:
+		echo "Could not find your user account";
+		break;
+	case 0:
+		echo "Your password was incorrect";
+		break;
+	case 1:
+		echo "Welcome, ".$ua->username;
+		break;
+}
+?>{% endhighlight %}
+	<p>Here, the username and password is passed to the object constructor,
+	as is the name and path of the file containing authentication
+	credentials. The authenticateUser() method takes care of parsing the
+	password file and checking if the user exists and the password is
+	correct. Depending on what it finds, a result code is generated and
+	stored in the private variable $_resultCode. This variable
+	can be read through the getResultCode() method, and an appropriate message
+	displayed. And since this entire thing is neatly encapsulated in a
+	class, I can take it anywhere, use it in any script – even inside
+	another application – and extend it to support different types of
+	authentication schemes and containers.</p>
+	<p>There’s a lot more you can do with objects, especially in PHP 5;
+	I’ve restrained myself here because I didn’t want to confuse you too
+	much with talk of overloading, abstract classes and static methods. If
+	you’re interested, however, drop by <a href="http://www.php.net/manual/en/language.oop.php">http://www.php.net/manual/en/language.oop.php</a>
+	for more. And make sure you come back for <a href="part8.html">Part Eight</a>
+	of PHP 101, because I’m going to show you how to hook your scripts up to a MySQL database.</p>
+      </section>
+      <footer>
+        <p><small>Hosted on GitHub Pages &mdash; Theme by <a href="http://twitter.com/#!/michigangraham">mattgraham</a></small></p>
+      </footer>
+    </div>
+    <!--[if !IE]><script>fixScale(document);</script><!--<![endif]-->
+    
+  </body>
+</html>
