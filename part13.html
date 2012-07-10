@@ -1,0 +1,741 @@
+---
+title: The trashman cometh
+---
+<!doctype html>
+<html>
+  <head>
+    <meta charset="utf-8">
+    <meta http-equiv="X-UA-Compatible" content="chrome=1">
+    <title>PHP101 - {{ page.title }}</title>
+    <link rel="stylesheet" href="stylesheets/styles.css">
+    <link rel="stylesheet" href="stylesheets/pygment_trac.css">
+    <script src="https://ajax.googleapis.com/ajax/libs/jquery/1.7.1/jquery.min.js"></script>
+    <script src="javascripts/main.js"></script>
+    <!--[if lt IE 9]>
+      <script src="//html5shiv.googlecode.com/svn/trunk/html5.js"></script>
+    <![endif]-->
+    <meta name="viewport" content="width=device-width, initial-scale=1, user-scalable=no">
+
+  </head>
+  <body>
+
+      <header>
+        <h1>PHP101</h1>
+        <p>For the absolute beginner</p>
+      </header>
+
+      <div id="banner">
+        <span id="logo"></span>
+
+        <a href="https://github.com/ss23/php-tutorial" class="button fork"><strong>View On GitHub</strong></a>
+      </div><!-- end banner -->
+
+    <div class="wrapper">
+      <nav>
+        <ul>
+		<li><a href="index.html">Introduction</a></li>
+		<li><a href="part1.html">Down the rabbit hole - Part 1</a></li>
+		<li><a href="part2.html">Calling all operators - Part 2</a></li>
+		<li><a href="part3.html">Looping the loop - Part 3</a></li>
+		<li><a href="part4.html">The food factor - Part 4</a></li>
+		<li><a href="part5.html">Rank and file - Part 5</a></li>
+		<li><a href="part6.html">Functionally yours - Part 6</a></li>
+		<li><a href="part7.html">The bear necessities - Part 7</a></li>
+		<li><a href="part8.html">Databases and otters - Part 8</a></li>
+		<li><a href="part9.html">SQLite my fire! - Part 9</a></li>
+		<li><a href="part10.html">Sessions in cookie jars - Part 10</a></li>
+		<li><a href="part11.html">Sinfully simple - Part 11</a></li>
+		<li><a href="part12.html">Bugging out - Part 12</a></li>
+		<li><a href="part13.html">The trashman cometh - Part 13</a></li>
+		<li><a href="part14.html">Going to the polls - Part 14</a></li>
+		<li><a href="part15.html">No news is good news - Part 15</a></li>
+	</ul>
+      </nav>
+      <section>
+      	<h2>Waiting to exhale</h2>
+	<p>Maybe you've heard the term GIGO before.</p>
+	<p>If you haven't, it stands for Garbage In, Garbage Out, and it's a basic fact of computer programming: if you feed your program bad input, you're almost certainly going to get bad output. And no matter which way you cut it, bad output is not a Good Thing for a programmer who wants to get noticed.</p>
+	<p>In case you think I'm exaggerating, let me give you a simple example. Consider an online loan calculator that allows a user to input a desired loan amount, finance term and interest rate. Let's assume that the application doesn't include any error checks, and that the user decides to enter that magic number, 0, into the Term field.</p>
+	<p>You can imagine the result. After a few internal calculations the application will end up attempting to divide the total amount payable by zero. The slew of ugly error messages that follow don't really bear discussion, but it's worth noting that they could have been avoided had the developer had the foresight to include an input validation routine when designing the application.</p>
+	<p>The moral of this story? If you're serious about using PHP for web development, one of the most important things you must learn is how to validate user input and deal with potentially unsafe data. Such input verification is one of the most important safeguards a developer can build into an application, and a failure to do this can snowball into serious problems, or even cause your application to break when it encounters invalid or corrupt data.</p>
+	<p>That's where this edition of PHP 101 comes in. Over the next few paragraphs, I'm going to show you some basic tricks to validate user input, catch "bad" data before it corrupts your calculations and databases, and provide user notification in a gentle, understandable and non-threatening way. To prepare for this exercise, I suggest you spin up a CD of John Lennon singing "Imagine", fill your heart with peace and goodwill towards all men, and take a few deep, calming breaths. Once you've exhaled, we can get going.</p>
+
+	<h2>An empty vessel...</h2>
+	<p>This tutorial assumes that the user input to be validated arrives through a web form. This is not the only way a PHP script can get user data; however, it is the most common way. If your PHP application needs to validate command-line input, I'd recommend you read my article on the PEAR Console_Getopt class, available for your perusal at <a href="http://www.melonfire.com/community/columns/trog/article.php?id=259">http://www.melonfire.com/community/columns/trog/article.php?id=259</a>.</p>
+	<p>It's common practice to use client-side scripting languages such as JavaScript or VBScript for client-side form validation. However, this type of client-side validation is not foolproof. You're not in control of the client, so if a user turns off JavaScript in his or her browser, all your efforts to ensure that the user does not enter irrelevant data become - well - irrelevant. That's why most experienced developers use both client-side and server-side validation. Server-side validation involves checking the values submitted to the server through a PHP script, and taking appropriate action when the input is incorrect.</p>
+	<p>Let's begin with the most commonly found input error: a required form field that is missing its value. Take a look at this example:</p>
+	{% highlight php %}<html>
+<head></head>
+<body>
+<?php
+if (!isset($_POST['submit'])) {
+?>
+    <form action = '<?php $_SERVER['PHP_SELF'] ?>' method = 'post'>
+    Which sandwich filling would you like?
+    <br />
+    <input type = 'text' name = 'filling'>
+    <br />
+    <input type = 'submit' name = 'submit' value = 'Save'>
+    </form>
+<?php
+}
+else {
+    // set database variables
+    $host = 'localhost';
+    $user = 'user';
+    $pass = 'secret';
+    $db = 'sandwiches';
+
+    // get user input
+    $filling = mysql_escape_string($_POST['filling']);
+
+    // open connection
+    $connection = mysql_connect($host, $user, $pass) or die('Unable to connect!');
+
+    // select database
+    mysql_select_db($db) or die('Unable to select database!');
+
+    // create query
+    $query = 'INSERT INTO orders (filling) VALUES ("$filling")';
+
+    // execute query
+    $result = mysql_query($query) or die("Error in query: $query. ".mysql_error());
+
+    // close connection
+    mysql_close($connection);
+
+    // display message
+    echo "Your {$_POST['filling']} sandwich is coming right up!";
+}
+?>
+</body>
+</html>{% endhighlight %}
+	<p>It's clear from the example above that submitting the form without entering any data will result in an empty record being added to the database (assuming no NOT NULL constraints on the target table). To avoid this, it's important to verify that the form does, in fact, contain valid data, and only then perform the INSERT query. Here's how:</p>
+	{% highlight php %}<html>
+<head></head>
+<body>
+<?php
+if (!isset($_POST['submit'])) {
+?>
+    <form action = '<?php $_SERVER['PHP_SELF'] ?>' method = 'post'>
+    Which sandwich filling would you like?
+    <br />
+    <input type = 'text' name = 'filling'>
+    <br />
+    <input type = 'submit' name = 'submit' value = 'Save'>
+    </form>
+<?php
+}
+else {
+    // check for required data
+    // die if absent
+    if (!isset($_POST['filling']) || trim($_POST['filling']) == '') {
+        die("ERROR: You can't have a sandwich without a filling!");
+    }
+    else {
+        $filling = mysql_escape_string(trim($_POST['filling']));
+    }
+
+    // set database variables
+    $host = 'localhost';
+    $user = 'user';
+    $pass = 'secret';
+    $db = 'sandwiches';
+
+    // open connection
+    $connection = mysql_connect($host, $user, $pass) or die('Unable to connect!');
+
+    // select database
+    mysql_select_db($db) or die('Unable to select database!');
+
+    // create query
+    $query = 'INSERT INTO orders (filling) VALUES ("$filling")';
+
+    // execute query
+    $result = mysql_query($query) or die("Error in query: $query. ".mysql_error());
+
+    // close connection
+    mysql_close($connection);
+
+    // display message
+    echo "Your {$_POST['filling']} sandwich is coming right up!";
+}
+?>
+</body>
+</html>{% endhighlight %}
+	<p>The error check here is both simple and logical: the trim() function is used to trim leading and trailing spaces from the field value, which is then compared with an empty string. If the match is true, the field was submitted empty, and the script dies with an error message before MySQL comes into the picture.</p>
+	<p>A common mistake, especially among newbies, is to replace the isset() and trim() combination with a call to PHP's empty() function, which tells you if a variable is empty. This isn't usually a good idea, because empty() has a fatal flaw: it'll return true even if a variable contains the number 0. The following simple example illustrates this:<p>
+	{% highlight php %}<?php
+// no data, returns empty
+$data = '';
+echo empty($data) ? "$data is empty" : "$data is not empty";
+echo "<br />\n";
+
+// some data, returns not empty
+$data = '1';
+echo empty($data) ? "$data is empty" : "$data is not empty";
+echo "<br />\n";
+
+// some data, returns empty
+$data = '0';
+echo empty($data) ? "$data is empty" : "$data is not empty";
+?>{% endhighlight %}
+	<p>So, if your form field is only allowed to hold non-empty, non-zero data, empty() is a good choice for validating it. But if the range of valid values for your field includes the number 0, stick with the isset() and trim() combination instead.</p>
+
+	<h2>Not my type</h2>
+	<p>So now you know how to catch the most basic error - missing data - and stop script processing before any damage takes place. But what if the data's present, but of the wrong type or size? Your 'missing values' test won't be triggered, but your calculations and database could still be affected. Obviously, then, you need to add a further layer of security, wherein the data type of the user input is also verified.</p>
+	<p>Here's an example which illustrates:</p>
+	{% highlight php %}<html>
+<head></head>
+<body>
+<?php
+if (!isset($_POST['submit'])) {
+?>
+    <form action = '<?php $_SERVER['PHP_SELF']?>' method = 'post'>
+    How many sandwiches would you like? (min 1, max 9)
+    <br />
+    <input type = 'text' name = 'quantity'>
+    <br />
+    <input type = 'submit' name = 'submit' value = 'Save'>
+    </form>
+<?php
+}
+else {
+    // check for required data
+    // die if absent
+    if (!isset($_POST['quantity']) || trim($_POST['quantity']) == '') {
+        die ("ERROR: Can't make 'em if you don't say how many!");
+    }
+
+    // check if input is a number
+    if (!is_numeric($_POST['quantity'])) {
+        die ("ERROR: Whatever you just said isn't a number!");
+    }
+
+    // check if input is an integer
+    if (intval($_POST['quantity']) != $_POST['quantity']) {
+        die ("ERROR: Can't do halves, quarters or thirds... I'd lose my job!");
+    }
+
+    // check if input is in the range 1-9
+    if (($_POST['quantity'] < 1) || ($_POST['quantity'] > 9)) {
+        die ('ERROR: I can only make between 1 and 9 sandwiches per order!');
+    }
+
+    // process the data
+    echo "I'm making you {$_POST['quantity']} sandwiches. Hope you can eat them all!";
+}
+?>
+</body>
+</html>{% endhighlight %}
+	<p>Notice that once I've established that the field contains some data, I've added a bunch of tests to make sure it meets data type and range constraints. First, I've checked if the value is numeric, with the is_numeric() function. This function tests a string to see if it is a numeric string - that is, a string consisting only of numbers.</p>
+	<p>Assuming what you've got is a number, the next step is to make sure it's an integer value between 1 and 9. To test if it's an integer, I've used the intval() function to extract the integer part of the value, and tested it against the value itself. Float values (such as 2.5) will fail this test; integer values will pass it. The final step before green-lighting the value is to see if it falls between 1 and 9. This is easy to accomplish with a couple of inequality tests.</p>
+	<p>Whilst on the topic, it's also worth mentioning the strlen() function, which returns the length of a string. This can come in handy to make sure that form input doesn't exceed a particular length. The following example shows how:</p>
+	{% highlight php %}<html>
+<head></head>
+<body>
+<?php
+if (!isset($_POST['submit'])) {
+?>
+    <form action = '<?php $_SERVER['PHP_SELF']?>' method = 'post'>
+    Enter a nickname 6-10 characters long:
+    <br />
+    <input type = 'text' name = 'nick'>
+    <br />
+    <input type = 'submit' name = 'submit' value = 'Save'>
+    </form>
+<?php
+}
+else {
+    // check for required data
+    // die if absent
+    if (!isset($_POST['nick']) || trim($_POST['nick']) == '') {
+        die ('ERROR: Come on, surely you can think of a nickname! How about Pooky?');
+    }
+
+    // check if input is of the right length
+    if (!(strlen($_POST['nick']) >= 6 && strlen($_POST['nick']) <= 10)) {
+        die ("ERROR: That's either too long or too short!");
+    }
+
+    // process the data
+    echo "I'll accept the nickname {$_POST['nick']}, seeing as it's you!";
+}
+?>
+</body>
+</html>{% endhighlight %}
+	<p>Here, the strlen() function is used to verify that the string input is neither too long nor too short. It's also a handy way to make sure that input data satisfies the field length constraints of your database. For example, if you have a MySQL VARCHAR(10) field, strings over 10 characters in length will be truncated. The strlen() function can serve as an early warning system in such cases, notifying the user of the length mismatch and avoiding data corruption.</p>
+	
+	<h2>The dating game</h2>
+	<p>Validating dates is another important aspect of input validation. It's all too easy, given a series of drop-down list boxes or free-form text fields, for a user to select a date like 29-Feb-2005 or 31-Apr-2005, neither of which is valid. Therefore, it's important to check that date values provided by the user are valid before using them in a calculation.</p>
+	<p>In PHP, this task is significantly simpler than in other languages, because of the checkdate() function. This function accepts three arguments - month, day and year - and returns a Boolean value indicating whether or not the date is valid. The following example demonstrates it in action:</p>
+	{% highlight php %}<html>
+<head></head>
+<body>
+<?php
+if (!isset($_POST['submit'])) {
+?>
+    <form action = '<?php $_SERVER['PHP_SELF']?>' method = 'post'>
+    Enter your date of birth:
+    <br /><br />
+    <select name = 'day'>
+    <?php
+    // generate day numbers
+    for ($x = 1; $x <= 31; $x++) {
+        echo "<option value = $x>$x</option>";
+    }
+    ?>
+    </select>
+    <select name = 'month'>
+    <?php
+    // generate month names
+    for ($x = 1; $x <= 12; $x++) {
+        echo "<option value=$x>".date('F', mktime(0, 0, 0, $x, 1, 1)).'</option>';
+    }
+    ?>
+    </select>
+    <select name = 'year'>
+    <?php
+    // generate year values
+    for ($x = 1950; $x <= 2005; $x++) {
+        echo "<option value=$x>$x</option>";
+    }
+    ?>
+    </select>
+    <br /><br />
+    <input type = 'submit' name = 'submit' value = 'Save'>
+    </form>
+<?php
+}
+else {
+    // check if date is valid
+    if (!checkdate($_POST['month'], $_POST['day'], $_POST['year'])) {
+        die("ERROR: The date {$_POST['day']}-{$_POST['month']}-{$_POST['year']} doesn't exist!");
+    }
+
+    // process the data
+    echo "You entered {$_POST['day']}-{$_POST['month']}-{$_POST['year']} - which is a valid date.";
+}
+?>
+</body>
+</html>{% endhighlight %}
+	<p>Try entering an invalid date, and see how PHP calls you on it. Ain't that cool?</p>.
+	<p>f you're storing date input in a MySQL table, it's interesting to note that MySQL does not perform any rigorous date verification of its own before accepting a DATE, DATETIME or TIMESTAMP value. Instead, it expects the developer to build date verification into the application itself. The most that MySQL will do, if it encounters an obviously illegal value, is convert the date to a zero value - not very helpful at all! Read more about this at http://dev.mysql.com/doc/mysql/en/datetime.html.</p>
+	<p>While we're on the topic, let's talk a little bit more about multiple-choice form elements like drop-down list boxes and radio buttons. In cases where it's mandatory to make a choice, a developer must verify that at least one of the available options has been selected by the user. This mainly involves clever use of the isset() and - for multi-select list boxes - the is_array() and sizeof() functions. The next example illustrates this:</p>
+	{% highlight php %}<html>
+<head></head>
+<body>
+<?php
+if (!isset($_POST['submit'])) {
+?>
+    <form action = '<?php $_SERVER['PHP_SELF'] ?>' method = 'post'>
+    Pizza base:
+    <br />
+    <input type = 'radio' name = 'base' value = 'thin and crispy'>Thin and crispy
+    <input type = 'radio' name = 'base' value = 'deep-dish'>Deep-dish
+    <br />
+Cheese:
+    <br />
+    <select name = 'cheese'>
+        <option value = 'mozzarella'>Mozzarella</option>
+        <option value = 'parmesan'>Parmesan</option>
+        <option value = 'gruyere'>Gruyere</option>
+    </select>
+    <br />
+    Toppings:
+    <br />
+    <select multiple name = 'toppings[]'>
+        <option value = 'tomatoes'>Tomatoes</option>
+        <option value = 'olives'>Olives</option>
+        <option value = 'pepperoni'>Pepperoni</option>
+        <option value = 'onions'>Onions</option>
+        <option value = 'peppers'>Peppers</option>
+        <option value = 'sausage'>Sausage</option>
+        <option value = 'anchovies'>Anchovies</option>
+    </select>
+    <br />
+    <input type = 'submit' name = 'submit' value = 'Save'>
+    </form>
+<?php
+}
+else {
+    // check radio button
+    if (!isset($_POST['base'])) {
+        die('You must select a base for the pizza');
+    }
+
+    // check list box
+    if (!isset($_POST['cheese'])) {
+        die('You must select a cheese for the pizza');
+    }
+
+    // check multi-select box
+    if (!is_array($_POST['toppings']) || sizeof($_POST['toppings']) < 1) {
+        die('You must select at least one topping for the pizza');
+    }
+
+    // process the data
+    echo "One {$_POST['base']} {$_POST['cheese']} pizza with ";
+    foreach ($_POST['toppings'] as $topping) echo $topping.", ";
+    echo "coming up!";
+
+}
+?>
+</body>
+</html>{% endhighlight %}
+	<p>Nothing to tax your brain too much here - the isset() function merely checks to see if at least one of a set of options has been selected, and prints an error message if this is not the case. Notice how the multi-select list box is validated: when the form is submitted, selections made here are placed in an array, and PHP's is_array() and sizeof() functions are used to test that array and ensure that it contains at least one element.</p>
+
+	<h2>A regular guy</h2>
+	<p>So far, the validation routines have been fairly simple- checking dates, checking for required values, and checking data type or size. Often, however, you need more sophisticated validation - for example, to test whether an email address or telephone number is written in the correct format. To accomplish these more complex validation tasks, clever PHP programmers turn to regular expressions.</p>
+	<p>Regular expressions, aka regex, are a powerful tool for pattern matching and substitution. They are commonly associated with almost all UNIX-based tools, including editors like vi, scripting languages like Perl and PHP, and shell programs like awk and sed. You'll even find them in client-side scripting languages like JavaScript. Kinda like Madonna, their popularity cuts across languages and territorial boundaries.</p>
+	<p>A regular expression lets you build patterns using a set of special characters. These patterns can then be compared with text in a file, data entered into an application, or input from a form filled in by users on a web site. Depending on whether or not there's a match, appropriate program code can be executed. Regular expressions thus play an important role in the decision-making routines of web applications.</p>
+	<p>A regular expression can be as simple as this:</p>
+	{% highlight regex %}/love/{% endhighlight %}
+	<p>All this does is match the pattern love in the text it's applied to. Like many other things in life, it's simpler to get your mind around the pattern than the concept - but that's neither here nor there.</p>
+	<p>How about something a little more complex? The pattern /fo+/ would match the words fool, footsie and four-seater. And although it's a pretty silly example, you have to admit it's realistic - after all, who but fools in love would play footsie in a four-seater?</p>
+	<p>The + symbol used in the expression is called a metacharacter - a character that has a special meaning when used within a pattern. The + metacharacter is used to match one or more occurrences of the preceding character - in the example above, that would be the letter f followed by one or more occurrences of the letter o.</p>
+	<p>Similar to the + metacharacter are * and ?, which are used to match zero or more occurrences of the preceding character, and zero or one occurrence of the preceding character, respectively. So /ab*/ would match aggressive, absolutely and abbey, while /Ron?/ would match Ronald, Roger and Roland, though not Rimbaud or Mona.</p>
+	<p>In case all this seems a little too imprecise, you can also specify a range for the number of matches. For example, the regular expression /ron{2,6}/ would match ronny and ronnnnnny!, but not ron. The numbers in the curly braces represent the lower and upper values of the range to match; you can leave out the upper limit for an open-ended range match.</p>
+	<p>Just as you can specify a range for the number of characters to be matched, you can also specify a range of characters. For example, the range /[A-Z]/ would match any string containing an upper-case alphabetic character, while /[a-z]/ would match any lowercase letters, and /[0-9]/ would match all numbers between 0 and 9.</p>
+	<p>Using these three character ranges, it's pretty easy to create a regular expression to match an ordered alphanumeric field: /([a-z][A-Z][0-9])+/ would match an alphanumeric string given the same character type order, such as aB2, but not abc. Note the parentheses around the patterns - contrary to what you might think, these are not there purely to confuse you; they come in handy when grouping sections of a regular expression together.</p>
+	<p>Of course, this is just the tip of the regular expression iceberg. There are many more metacharacters, and innumerable ways in which they can be combined to create powerful pattern-matching rules. For an in-depth introduction, take a look at http://www.melonfire.com/community/columns/trog/article.php?id=2, the reference pages at http://it.metr.ou.edu/regex/, and the PHP manual pages at http://www.php.net/manual/en/ref.regex.php and http://www.php.net/manual/en/ref.pcre.php. You can find a bunch of sample regular expressions for all manner of applications at http://www.regexlib.com/.</p>
+
+	<h2>A pattern emerges</h2>
+	<p>In PHP, regular expression matching takes place with the ereg() or preg_match() functions (ereg() also comes in a case-insensitive version called eregi()). These functions, which differ marginally from each other in their semantics, can be used to test user input against pre-defined patterns and thus catch invalid data before it gets into your application. The most common example of regex usage in PHP is, of course, the email address validator... and since I'm a slave to tradition, that's also my first example. Take a look:</p>
+	{% highlight php %}<html>
+<head></head>
+<body>
+<?php
+if (!isset($_POST['submit'])) {
+?>
+    <form action = '<?php $_SERVER['PHP_SELF'] ?>' method = 'post'>
+    Email address:
+    <br />
+    <input type = 'text' name = 'email'>
+    <input type = 'submit' name = 'submit' value = 'Save'>
+    </form>
+<?php
+}
+else {
+    // check email address
+    if (!ereg('^([a-zA-Z0-9])+([\.a-zA-Z0-9_-])*@([a-zA-Z0-9_-])+(\.[a-zA-Z0-9_-]+)*\.([a-zA-Z]{2,6})$', $_POST['email'])) {
+        die("Dunno what that is, but it sure isn't an email address!");
+    }
+
+    // process the data
+    echo "The email address {$_POST['email']} has a valid structure. Doesn't mean it works!";
+}
+?>
+</body>
+</html>{% endhighlight %}
+	<p>Here, the pattern </p>
+	{% highlight regex %}/^([a-zA-Z0-9])+([\.a-zA-Z0-9_-])*@([a-zA-Z0-9_-])+(\.[a-zA-Z0-9_-]+)*\.([a-zA-Z]{2,6})$/{% endhighlight %}
+	<p>(try saying that fast!) is a regular expression that matches the basic format for a user@host email address. Input which matches this pattern will be accepted; input which doesn't will trigger a piercing siren. Notice that ereg() doesn't need the same delimiters as the faster preg_match(), which complains if it doesn't get a / at each end of the expression.</p>
+	<p>Here's another example, this one good for testing international phone numbers:</p>
+	{% highlight php %}<html>
+<head></head>
+<body>
+<?php
+if (!isset($_POST['submit'])) {
+?>
+    <form action = '<?php $_SERVER['PHP_SELF'] ?>' method = 'post'>
+    Phone number (with country/area codes):
+    <br />
+    <input type = 'text' name = 'tel'>
+    <input type = 'submit' name = 'submit' value = 'Save'>
+    </form>
+<?php
+}
+else {
+    // check phone number
+    if (!preg_match('/^(\+|00)[1-9]{1,3}(\.|\s|-)?([0-9]{1,5}(\.|\s|-)?){1,3}$/', $_POST['tel'])) {
+        die ("Dunno what that is, but it sure isn't an international phone number!");
+    }
+
+    // process the data
+    echo "{$_POST['tel']} has a valid structure. Doesn't mean it works!";
+}
+?>
+</body>
+</html>{% endhighlight %}
+	<p>If you play with this a bit, you'll see that it'll accept any of the numbers +1.212.1234.4567, +44 1865 123456 and 0091 11 1234 5678... even though each is formatted differently. Mostly this is because of my use of the | separator in the regular expression, which functions as logical OR and makes it possible to create a pattern that supports alternatives internally. Obviously you can tighten the pattern up as necessary. For example, if you're in India and your application only supports Indian phone numbers, you can fix the pattern so that it expects 91 (India's country code) as the first two digits of the number.</p>
+	<p>It's interesting to try rewriting some of our earlier validation routines using regular expressions. Here's an alternative version of one of the early examples in this tutorial, rewritten to use ereg() instead of intval(), is_numeric() and isset():</p>
+	{% highlight php %}<html>
+<head></head>
+<body>
+<?php
+if (!isset($_POST['submit'])) {
+?>
+    <form action = '<?php $_SERVER['PHP_SELF'] ?>' method = 'post'>
+    How many sandwiches would you like? (min 1, max 9)
+    <br />
+    <input type = 'text' name = 'quantity'>
+    <br />
+    <input type = 'submit' name = 'submit' value = 'Save'>
+    </form>
+<?php
+}
+else {
+    // check for required data
+    if (!ereg('^[1-9]$', $_POST['quantity'])) {
+        die('ERROR: That is an invalid quantity!');
+    }
+
+    // process the data
+    echo "I'm making you {$_POST['quantity']} sandwiches. Hope you can eat them all!";
+}
+?>
+</body>
+</html>{% endhighlight %}
+	<p>Notice how a single regular expression here replaces four separate tests in the earlier version, and how much more compact the result is. It's precisely this power and flexibility that make regular expressions such an important part of the input validation toolkit.</p>
+
+	<h2>Back to class</h2>
+	<p>Now that you know the basics of input validation, it should be clear to you that this is a task you'll be performing often. It therefore makes sense to create a reusable library of functions for input validation, which you can use every time an application needs its input checked for errors. That's precisely what I'm going to do next - create a PHP class that exposes basic object methods for data validation and error handling, and then use it to validate a form.</p>
+	<p>Here's the class definition, class.formValidator.php, written for PHP 5.x. You could adapt it to PHP 4.x by simply getting rid of the public and private markers on the class methods. The rest of the following scripts run under either PHP version.</p>
+	{% highlight php %}<?php
+// PHP 5
+
+// class definition
+// class encapsulating data validation functions
+class formValidator {
+
+    // define properties
+    private $_errorList;
+
+    // define methods
+    // constructor
+    public function __construct() {
+        $this->resetErrorList();
+    }
+
+    // initialize error list
+    private function resetErrorList() {
+        $this->_errorList = array();
+    }
+
+    // check whether input is empty
+    public function isEmpty($value) {
+        return (!isset($value) || trim($value) == '') ? true : false;
+    }
+
+    // check whether input is a string
+    public function isString($value) {
+        return is_string($value);
+    }
+
+    // check whether input is a number
+    public function isNumber($value) {
+        return is_numeric($value);
+    }
+
+    // check whether input is an integer
+    public function isInteger($value) {
+        return (intval($value) == $value) ? true : false;
+    }
+
+    // check whether input is alphabetic
+    public function isAlpha($value) {
+        return preg_match('/^[a-zA-Z]+$/', $value);
+    }
+
+    // check whether input is within a numeric range
+    public function isWithinRange($value, $min, $max) {
+        return (is_numeric($value) && $value >= $min && $value <= $max) ? true : false;
+    }
+    
+    // check whether input is a valid email address
+    public function isEmailAddress($value) {
+        return eregi('^([a-z0-9])+([\.a-z0-9_-])*@([a-z0-9_-])+(\.[a-z0-9_-]+)*\.([a-z]{2,6})$', $value);
+    }
+
+    // check if a value exists in an array
+    public function isInArray($array, $value) {
+        return in_array($value, $array);
+    }
+
+    // add an error to the error list
+    public function addError($field, $message) {
+        $this->_errorList[] = array('field' => $field, 'message' => $message);
+    }
+
+    // check if errors exist in the error list
+    public function isError() {
+        return (sizeof($this->_errorList) > 0) ? true : false;
+    }
+
+    // return the error list to the caller
+    public function getErrorList() {
+        return $this->_errorList;
+    }
+
+    // destructor
+    // de-initialize error list
+    public function __destruct() {
+        unset($this->_errorList);
+    }
+
+// end class definition
+}
+?>{% endhighlight %}
+	<p>Stripped down to its bare bones, this formValidator class consists of two primary components.</p>
+	<p>The first is a series of methods that accept the data to be validated, test this data to see whether or not it is valid (however "valid" may be defined within the scope of the method), and return a Boolean result code.</p>
+	<p>Here's a list of the supported methods:</p>
+	<ul>
+		<li>isEmpty() - tests if a value is an empty string</li>
+		<li>isString() - tests if a value is a string</li>
+		<li>isNumber() - tests if a value is a numeric string</li>
+		<li>isInteger() - tests if a value is an integer</li>
+		<li>isAlpha() - tests if a value consists only of alphabetic characters</li>
+		<li>isEmailAddress() - tests if a value is an email address</li>
+		<li>isWithinRange() - tests if a value falls within a numeric range</li>
+		<li>isInArray() - tests if a value exists in an array</li>
+	</ul>
+	<p>Obviously, the list above is not exhaustive - you should feel free to add to it as per your own requirements.</p>
+	<p>In earlier examples in this tutorial, I set things up so that the data validation routine would terminate script processing immediately with die() if it encountered an input error. In the real world, such abrupt termination on the first error is not usually a good idea; instead, it's more efficient to process all the user's input, identify all the errors, and then list them for the user to correct at once.</p>
+	<p>That's where the second component of this class comes in. It's a PHP array that holds a list of all the errors encountered during the validation process, and some methods to manipulate this structure. Here's a list:</p>
+	<ul>
+		<li>isError() - check if any errors exist in the error list</li>
+		<li>addError() - add an error to the error list</li>
+		<li>getErrorList() - retrieve the current list of errors</li>
+		<li>resetErrorList() - reset the error list</li>
+	</ul>
+	<p>This might all seem somewhat abstruse to you at the moment. Let's jump into a practical example and all the code above will begin to make more sense. First, we need a straightforward HTML form:</p>
+	{% highlight php %}<html>
+<head></head>
+<body>
+
+<b>Fields marked with * are mandatory</b>
+
+<form action = 'processor.php' method = 'post'>
+<b>Name*:</b>
+<br />
+<input type = 'text' name = 'name' size = '15'>
+<p />
+
+<b>Age*:</b>
+<br />
+<input type = 'text' name = 'age' size = '2' maxlength = '2'>
+<p />
+
+<b>Email address*:</b>
+<br />
+<input type = 'text' name = 'email' size = '30'>
+<p />
+
+<b>Sex*:</b>
+<br />
+<input type = 'radio' name = 'sex' value = 'm'>Male
+<input type = 'radio' name = 'sex' value = 'f'>Female
+<p />
+
+<b>Color*:</b>
+<br />
+<select name = 'color'>
+<option value = ''>-select one-</option>
+<option value = 'r'>Red</option>
+<option value = 'g'>Green</option>
+<option value = 'b'>Blue</option>
+<option value = 's'>Silver</option>
+</select>
+<p />
+
+<b>Insurance*:</b>
+<br />
+<select name = 'insurance'>
+<option value = ''>-select one-</option>
+<option value = '1'>Basic</option>
+<option value = '2'>Enhanced</option>
+<option value = '3'>Premium</option>
+</select>
+<p />
+
+<b>Optional features:</b>
+<br />
+<input type = 'checkbox' name = 'options[]' value = 'PSTR'>Power steering
+<input type = 'checkbox' name = 'options[]' value = 'AC'>Air-conditioning
+<input type = 'checkbox' name = 'options[]' value = '4WD'>Four-wheel drive
+<input type = 'checkbox' name = 'options[]' value = 'SR'>Sun roof
+<input type = 'checkbox' name = 'options[]' value = 'LUP'>Leather upholstery
+<p />
+<input type = 'submit' name = 'submit' value = 'Save'>
+</form>
+
+</body>
+</html>{% endhighlight %}
+	<p>Now, we need a PHP script to process the input sent through this form, using my new formValidator object. Save this as processor.php:</p>
+	{% highlight php %}<?php
+// include file containing class
+include('class.formValidator.php');
+
+// instantiate object
+$fv = new formValidator();
+
+// start checking the data
+
+// check name
+if ($fv->isEmpty($_POST['name'])) {
+    $fv->addError('Name', 'Please enter your name');
+}
+
+// check age and age range
+if (!$fv->isNumber($_POST['age'])) {
+    $fv->addError('Age', 'Please enter your age');
+}
+else if (!$fv->isWithinRange($_POST['age'], 1, 99)) {
+    $fv->addError('Age', 'Please enter an age value in the numeric range 1-99');
+}
+
+// check sex
+if (!isset($_POST['sex'])) {
+    $fv->addError('Sex', 'Please select your gender');
+}
+
+// check email address
+if (!$fv->isEmailAddress($_POST['email'])) {
+    $fv->addError('Email address', 'Please enter a valid email address');
+}
+
+// check color
+if ($fv->isEmpty($_POST['color'])) {
+    $fv->addError('Color', 'Please select one of the listed colors');
+}
+
+// check insurance type
+if ($fv->isEmpty($_POST['insurance'])) {
+    $fv->addError('Insurance', 'Please select one of the listed insurance types');
+}
+
+// check optional features
+if (isset($_POST['options'])) {
+    if ($fv->isInArray($_POST['options'], '4WD') && !$fv->isInArray($_POST['options'], 'PSTR')) {
+        $fv->addError('Optional features', 'Please also select Power Steering if you would like Four-Wheel Drive');
+    }
+}
+
+// check to see if any errors were generated
+if ($fv->isError()) {
+    // print errors
+    echo '<b>The operation could not be performed because one or more error(s) occurred.</b> <p /> Please resubmit the form after making the following changes:';
+    echo '<ul>';
+    foreach ($fv->getErrorList() as $e) {
+        echo '<li>'.$e['field'].': '.$e['message'];
+    }
+    echo '</ul>';
+}
+else {
+    // do something useful with the data
+    echo 'Data OK';
+}
+?>{% endhighlight %}
+	<p>As the listing above illustrates, the kind of methods exposed by my formValidator() object come in very handy to verify the user's input. In all cases, the isEmpty() method is used to test if required fields have been filled in, while the isEmailAddress() and isWithinRange() methods are used for more precise validation. The isInArray() method, very useful for check boxes and multiple-select lists, is also a great way to enforce associative rules and link specific choices together.</p>
+	<p>It's important to note that the formValidator class created above has nothing to do with the visual presentation of either the form or the form's result page. Its methods merely test the input sent to them and return a result code; how that result code is interpreted is entirely up to the developer. In the script above, a foreach() loop iterates over the list of errors and prints them in a bulleted list; however, you could just as easily display the errors in a table or write them to a log file in a custom format. I'll leave it to you to experiment with the possibilities.</p>
+	<p>That's about it for this episode of PHP 101. But hey, don't be depressed - I'll be back soon and, next time, I'm going to be taking everything I've taught you and using it to build a real-world PHP/MySQL web application. Make sure you don't miss that!</p>
+      </section>
+      <footer>
+        <p><small>Hosted on GitHub Pages &mdash; Theme by <a href="http://twitter.com/#!/michigangraham">mattgraham</a></small></p>
+      </footer>
+    </div>
+    <!--[if !IE]><script>fixScale(document);</script><!--<![endif]-->
+    
+  </body>
+</html>
