@@ -52,151 +52,103 @@ title: Rank and file
       </nav>
       <section>
       	<h2>Back to school</h2>
-	<p>When you first started reading this series, I promised you that
-	you’d have a whole lot of fun. If you’re the cynical type, you may be
-	feeling that I didn’t keep my promise. After all, how much fun have you
-	really had so far? All you’ve done is learn a bunch of
-	theoretical rules, added and subtracted numbers from each other, learnt
-	primitive decision-making and gone round and round in the circular
-	funhouse of loops. Heck, if this wasn’t a PHP tutorial, it would be
-	kindergarten…</p>
+	<p>When you first started reading this series, I promised you that you'd have a whole lot of fun. If you're the cynical type, you may be feeling that I didn't keep my promise. After all, how much fun have you really had so far? All you've done is learn a bunch of theoretical rules, added and subtracted numbers from each other, learnt primitive decision-making and gone round and round in the circular funhouse of loops. Heck, if this wasn't a PHP tutorial, it would be kindergarten...</p>
 	<p>I hear you.</p>
-	<p>In this segment of our ongoing saga, I’m going to teach you how to
-	do something that’s definitely not for kids. It involves getting down
-	and dirty with files on the disk: meeting them (shock!), reading their
-	contents (shriek!) and (horror of horrors!) writing data to them. All
-	of these exciting activities will take place under the aegis of PHP’s
-	very cool file manipulation API, which allows you to view and modify
-	file attributes, read and list directory contents, alter file
-	permissions, retrieve file contents into a variety of native data
-	structures, and search for files based on specific patterns.</p>
-	<p>Let’s get started!</p>
+	<p>In this segment of our ongoing saga, I'm going to teach you how to do something that's definitely not for kids. It involves getting down and dirty with files on the disk: meeting them (shock!), reading their contents (shriek!) and (horror of horrors!) writing data to them. All of these exciting activities will take place under the aegis of PHP's very cool file manipulation API, which allows you to view and modify file attributes, read and list directory contents, alter file permissions, retrieve file contents into a variety of native data structures, and search for files based on specific patterns.</p>
+	<p>Let's get started!</p>
 
 	<h2>Handle with care</h2>
-	<p>I’ll begin with something simple: opening a file and reading its
-	contents. Let’s assume that somewhere on your disk, hidden under
-	/usr/local/stuff/that/should/be/elsewhere/recipes/, you have a text
-	file containing the recipe for the perfect Spanish omelette. You now wish
+	<p>I'll begin with something simple: opening a file and reading its contents. Let's assume that somewhere on your disk, hidden under <code>/usr/local/recipes/</code>, you have a text file containing the recipe for the perfect Spanish omelette. You now wish
 	to read the contents of this file into a PHP script.</p>
-	<p>In order to do this, there are three distinct steps to be
-	followed:
+	<p>In order to do this, there are three distinct steps to be followed:</p>
 	<ul>
 		<li>Open the file and assign it a file handle.</li>
-		<li>Interact with the file, via its handle, and extract its contents
-		into a PHP variable.</li>
+		<li>Interact with the file, via its handle, and extract its contents into a PHP variable.</li>
 		<li>Close the file.</li>
 	</ul>
-	</p>
-	<p>Here’s a PHP script that does just that:</p>
-	{% highlight php %}<?php
-// set file to read
-$file = '/usr/local/stuff/that/should/be/elsewhere/recipes/omelette.txt' or die('Could not open file!');
-// open file
+	<p>Here's a PHP script that does just that:</p>
+{% highlight php %}<?php
+// Set file to read
+$file = '/usr/local/recipes/omelette.txt';
+// Open file
 $fh = fopen($file, 'r') or die('Could not open file!');
-// read file contents
+// Read file contents
 $data = fread($fh, filesize($file)) or die('Could not read file!');
-// close file
+// Close file
 fclose($fh);
-// print file contents
+// Print file contents
 echo $data;
 ?>{% endhighlight %}
-	<p>Run this script through your Web browser, and PHP should return the
-	contents of the file.</p>
+	<p>Run this script through your Web browser, and PHP should return the contents of the file.</p>
 	<p>Now let me explain each of the three steps above in detail:</p>
 
 	<h2>Open the file and assign it a file handle</h2>
-	<p>PHP needs a file handle to read data from a file. This file handle
-	can be created with the fopen() function, which accepts two arguments:
-	the name and path to the file, and a string indicating the “mode” in
-	which the file is to be opened ('r' for read).</p>
-	<p>Three different modes are available for use with the fopen()
-	function. Here’s the list:</p>
+	<p>PHP needs a file handle to read data from a file. This file handle can be created with the fopen() function, which accepts two arguments: the name and path to the file, and a string indicating the "mode" in which the file is to be opened ('r' for read).</p>
+	<p>Three different modes are available for use with the fopen() function. Here's the list:</p>
 	<ul>
-		<li>'r' – opens a file in read mode</li>
-		<li>'w' – opens a file in write mode, destroying existing file
-		contents</li>
-		<li>'a' – opens a file in append mode, preserving existing file
-		contents</li>
+		<li><strong>'r'</strong> - opens a file in read mode</li>
+		<li><strong>'w'</strong> - opens a file in write mode, destroying existing file contents</li>
+		<li><strong>'a'</strong> - opens a file in append mode, preserving existing file contents</li>
 	</ul>
 
 	<h2>Interaction with the file</h2>
-	<p>If the fopen() function is successful, it returns a file handle,
-	$fh, which can be used for further interaction with the file. This file
-	handle is used by the fread() function, which reads the file and places
-	its contents into a variable.</p>
-	<p>The second argument to fread() is the number of bytes to be read.
-	You can usually obtain this information through the filesize() function, which – who’d have guessed it?!- returns the size of the
-	file in bytes.</p>
+	<p>If the <code>fopen()</code> function is successful, it returns a file handle, <code>$fh</code>, which can be used for further interaction with the file. This file handle is used by the <code>fread()</code> function, which reads the file and places its contents into a variable.</p>
+	<p>The second argument to <code>fread()</code> is the number of bytes to be read. You can usually obtain this information through the <code>filesize()</code> function, which - who'd have guessed it?!- returns the size of the file in bytes.</p>
 
 	<h2>Close the file</h2>
-	<p>This last step is not strictly necessary as PHP closes the file
-	automatically once it reaches the end of the script, but it’s a good
-	habit to develop. Explicitly closing the file with fclose() has two
-	advantages: it ties up loose ends in your script, and it wins you lots
-	of good karma from the PHP community.</p>
-	<p>You probably haven’t see the die() function before, either. This
-	function is mostly used as a primitive error-handling mechanism. In the
-	event of a fatal error, such as the file path being invalid or the file
-	permissions being such that PHP cannot read it, die() terminates script
-	processing and optionally displays a user-specified error message
-	indicating why it committed suicide.</p>
-
-	<h2>Different strokes</h2>
-	<p>An alternative method of reading data from a file is the very cool
-	file() function, which reads the entire file into an array (remember
-	them?) with one line of code. Each element of the array then contains
-	one line from the file. To display the contents of the file, simply
-	iterate over the array in a foreach() loop and print each element.</p>
-	<p>The following example demonstrates:</p>
-	{% highlight php %}<?php
-// set file to read
-$file = '/usr/local/stuff/that/should/be/elsewhere/recipes/omelette.txt' or die('Could not read file!');
-// read file into array
-$data = file($file) or die('Could not read file!');
-// loop through array and print each line
-foreach ($data as $line) {
-	echo $line;
+	<p>This last step is not strictly necessary as PHP closes the file automatically once it reaches the end of the script, but it's a good habit to develop. Explicitly closing the file with <code>fclose()</code> has two advantages: it ties up loose ends in your script, and it wins you lots of good karma from the PHP community.</p>
+	<p>You probably haven't seen the <code>die()</code> function before, either. This function is mostly used as a primitive error-handling mechanism. In the event of a fatal error, such as the file path being invalid or the file permissions being such that PHP cannot read it, <code>die()</code> terminates script processing and optionally displays a user-specified error message indicating why it committed suicide.</p>
+	<p>Something else that needs a little more explaining is the <code>something or die();</code> construct. The end result is that it evaluates to something like this:</p>
+{% highlight php %}<?php
+if (!something) {
+	die();
 }
 ?>{% endhighlight %}
-	<p>In this example, the file() command opens the file, reads it into an
-	array and closes the file – all in one, single, elegant movement. Each
-	element of the array now corresponds to a line from the file. It’s easy
-	to print the file’s contents now – just reach for that mainstay of
-	array processing, the foreach() loop.</p>
-	<p>Don’t want the data in an array? Try the file_get_contents()
-	function, new in PHP 4.3.0 and PHP 5.0, which reads the entire file
-	into a string:</p>
-	{% highlight php %}<?php
+	<p>That is, if <code>something</code> returned false, <code>die()</code>. Note, that <code>die()</code> could be anything, it's just the most common usage of this style construct.</p>
+	<p>You can skip the explanation of how it works if you like, but it should help improve your understanding of PHP in general, so I recommend reading it.</p>
+	<p>If you recall from <a href="part2.html">Part Two</a>, we described the <code>OR</code> logical operator. An important feature of PHP with these operators is something called <a href="http://en.wikipedia.org/wiki/Short-circuit_evaluation">Short-circuit evaluation</a>. The Wikipedia article should help with understanding, but I think the following example show's whats going on well enough.</p>
+{% highlight php %}<?php
+if (true or die('True')) {
+	echo "True or die\n";
+}
+if (false or die('False')) {
+	echo "False or die\n";
+}
+echo "Finished script\n";
+?>{% endhighlight %}
+	<p>The script should give an output that looks like</p>
+<pre>True or die
+False</pre>
+	<p>In the first <code>if()</code>, PHP evaulates the first argument of the <code>OR</code> and notices it's true. Because this is an <code>OR</code>, the value of the second argument doesn't matter; it can be false or true, but the code in the curley braces will still be executed. Knowing this, PHP takes a shortcut and decides not to bother with the second part of the <code>OR</code>, which is why the script doesn't <code>die()</code> here. In the second <code>if()</code>, PHP notices the first argument is false, and is forced to continue to evaluate the second, as knowing its value is required to decide whether to execute the code in the curley brackets.</p>
+	<p>Now, all of this still holds if we removed the <code>if()</code>. The following example outputs the same as the previous, but is doing so without <code>if()</code>. This is whats happening in the file reading script.</p>
+{% highlight php %}<?php
+true or die('True');
+echo "True or die\n";
+
+// die() here
+false or die('False');
+echo "False or die\n";
+
+echo "Finished script\n";
+?>{% endhighlight %}
+
+	<h2>Different strokes</h2>
+	<p>A far easier way of getting the contents of a file is the <code>file_get_contents()</code> function, which reads the entire file into a string:</p>
+{% highlight php %}<?php
 // set file to read
-$file = '/usr/local/stuff/that/should/be/elsewhere/recipes/omelette.txt';
+$file = '/usr/local/recipes/omelette.txt';
 // read file into string
 $data = file_get_contents($file) or die('Could not read file!');
 // print contents
 echo $data;
 ?>{% endhighlight %}
-	<p>Who am I kidding? I always use the one-line functions noted above
-	instead of the three-line sequence of fopen(), fread() and fclose().
-	Laziness conquers all.</p>
+	<p>Given how much easier it is to use this function, I would recommend using it over the others, unless you have a specific reason not to. Laziness conquers all.</p>
 
 	<h2>When laziness is a virtue</h2>
-	<p>PHP also offers two very useful functions to import files into a PHP
-	script: the include() and require()functions. These functions can be
-	used to suck external files lock, stock and barrel into a PHP script,
-	which is very handy if, for example, you have a modular application
-	which has its code broken down across files in separate locations.</p>
-	<p>The best way to understand the utility of the include() and
-	require() functions is with an example. Assume that on your Web site
-	you have a standard menu bar at the top of every page, and a standard
-	copyright notice in the bottom. Instead of copying and pasting the
-	header and footer code on each individual page, PHP gurus simply create
-	separate files for the header and footer, and import them at the top
-	and bottom of each script. This also makes a change to the site design
-	easier to implement: instead of manually editing a gazillion files, you
-	simply edit two, and the changes are reflected across your entire site
-	instantaneously.</p>
-	<p>Let’s see a real live example of this in action. Create the header
-	in one file, called header.php:</p>
-	{% highlight php %}<html>
+	<p>PHP also offers two very useful functions to import files into a PHP script: the <code>include</code> and <code>require</code> functions. These functions can be used to suck external files lock, stock and barrel into a PHP script, which is very handy if, for example, you have a modular application which has its code broken down across files in separate locations.</p>
+	<p>The best way to understand the utility of the <code>include</code> and <code>require</code> functions is with an example. Assume that on your Web site you have a standard menu bar at the top of every page, and a standard copyright notice in the bottom. Instead of copying and pasting the header and footer code on each individual page, PHP gurus simply create separate files for the header and footer, and import them at the top and bottom of each script. This also makes a change to the site design easier to implement: instead of manually editing a gazillion files, you simply edit two, and the changes are reflected across your entire site instantaneously.</p>
+	<p>Let's see a real live example of this in action. Create the header in one file, called header.php:</p>
+{% highlight php %}<html>
 <head><title><?php echo $page['title'];?></title></head>
 <body>
 <!-- top menu bar -->
@@ -209,60 +161,37 @@ echo $data;
 </tr>
 </table>
 <!-- header ends -->{% endhighlight %}
-	<p>Next, create the footer with the copyright notice in a second file,
-	footer.php:</p>
-	{% highlight php %}<!-- footer begins -->
+	<p>Next, create the footer with the copyright notice in a second file, footer.php:</p>
+{% highlight php %}<!-- footer begins -->
 <br>
 <center>Your usage of this site is subject to its published <a href="tac.html">terms and conditions</a>. Data is copyright Big Company Inc, 1995-<?php echo date("Y", mktime()); ?></center>
 </body>
 </html>{% endhighlight %}
-	<p>Finally, create a script to display the main content of your site,
-	and include() the header and footer at appropriate places:</p>
-	{% highlight php %}<?php
+	<p>Finally, create a script to display the main content of your site, and <code>require</code> the header and footer at appropriate places:</p>
+{% highlight php %}<?php
 // create an array to set page-level variables
 $page = array();
 $page['title'] = 'Product Catalog';
 /* once the file is imported, the variables set above will become available to it */
 // include the page header
-include('header.php');
+require 'header.php';
 ?>
 <!-- HTML content here -->
 <?php
 // include the page footer
-include('footer.php');
+require 'footer.php';
 ?>{% endhighlight %}
-	<p>Now, when you run the script above, PHP will automatically read in
-	the header and footer files, merge them with the HTML content, and
-	display the complete page to you. Simple, isn’t it?</p>
-	<p>Notice that you can even write PHP code inside the files being
-	imported. When the file is first read in, the parser will look for
-	&lt;?php...?&gt; tags, and automatically execute the code inside it.
-	(If you’re familiar with JavaScript, you can use this feature to
-	replicate functionality similar to that of the onLoad() page event
-	handler in JavaScript.)</p>
-	<p>PHP also offers the require_once() and include_once()functions,
-	which ensure that a file which has already been read is not read again.
-	This can come in handy if you have a situation in which you want to
-	eliminate multiple reads of the same include file, either for
-	performance reasons or to avoid corruption of the variable space.</p>
-	<p>A quick note on the difference between the include() and
-	require()functions: the require()function returns a fatal error if the
-	named file cannot be found and halts script processing, while the
-	include() function returns a warning but allows script processing to
-	continue.</p>
+	<p>Now, when you run the script above, PHP will automatically read in the header and footer files, merge them with the HTML content, and display the complete page to you. Simple, isn't it?</p>
+	<p>Notice that you can even write PHP code inside the files being imported. When the file is first read in, the parser will look for &lt;?php...?&gt; tags, and automatically execute the code inside it. (If you're familiar with JavaScript, you can use this feature to replicate functionality similar to that of the onLoad() page event handler in JavaScript.)</p>
+	<p>PHP also offers the <code>require_once</code> and <code>include_once</code> functions, which ensure that a file which has already been read is not read again. This can come in handy if you have a situation in which you want to eliminate multiple reads of the same include file, either for performance reasons or to avoid corruption of the variable space.</p>
+	<p>A quick note on the difference between the differences between all these variations:<br>
+	The require variants will cause a fatal error if the file is not found, causing the script to stop, whereas include will give a warning and allow the script to continue. Generally, it's going to be less hassle to use require, so you can catch errors more quickly. As for the once variants, consider using them if including the same file twice will cause problems, such as a file of function definitions, where being parsed twice would cause problems.</p>
+	<p>A final note on the use of parenthesis: All of these functions aren't actually functions, but rather language constructs, and accordingly, don't require parenthesis to be used. You can use them if you like, but be warned that there are a few edge cases where this might become a problem. The same usage applies to these as does the <code>echo</code> language construct.</p>
 
 	<h2>Writing to ma</h2>
-	<p>After everything you’ve just read, you’ve probably realized that
-	reading a file is not exactly brain surgery. So let’s proceed to
-	something slightly more difficult – writing to a file.</p>
-	<p>The steps involved in writing data to a file are almost identical to
-	those involved in reading it: open the file and obtain a file handle,
-	use the file handle to write data to it, and close the file. There are
-	two differences: first, you must fopen() the file in write mode ('w'
-	for write), and second, instead of using the fread() function to read
-	from the file handle, use the fwrite() function to write to it. Take a
-	look:</p>
-	{% highlight php %}<?php
+	<p>After everything you've just read, you've probably realized that reading a file is not exactly brain surgery. So let's proceed to something slightly more difficult - writing to a file.</p>
+	<p>The steps involved in writing data to a file are almost identical to those involved in reading it: open the file and obtain a file handle, use the file handle to write data to it, and close the file. There are two differences: first, you must <code>fopen()</code> the file in write mode ('w' for write), and second, instead of using the <code>fread()</code> function to read from the file handle, use the <code>fwrite()</code> function to write to it. Take a look:</p>
+{% highlight php %}<?php
 // set file to write
 $file = '/tmp/dump.txt';
 // open file
@@ -272,49 +201,27 @@ fwrite($fh, "Look, Ma, I wrote a file!") or die('Could not write to file');
 // close file
 fclose($fh);
 ?>{% endhighlight %}
-	<p>When you run this script, it should create a file named dump.txt in
-	/tmp, and write a line of text to it, with a carriage return at the
-	end. Notice that double quotes are needed to convert
-	into a carriage return.</p>
-	<p>The fopen(), fwrite() and fread() functions are all binary-safe,
-	which means you can use them on binary files without worrying about
-	damage to the file contents. Read more about many of the issues related
-	to binary-safe file manipulation on different platforms at
-	<a href="http://www.php.net/manual/en/function.fopen.php">http://www.php.net/manual/en/function.fopen.php</a>.</p>
-	<p>If I’ve spoiled you by showing you the one-line shortcut functions
-	for file reads, let me damage you further by introducing you to the
-	file_put_contents() function, new in PHP 5.0, which takes a string and
-	writes it to a file in a single line of code.</p>
-	{% highlight php %}<?php
+	<p>When you run this script, it should create a file <code>/tmp/dump.txt</code>, and write a line of text to it, with a carriage return at the end. Notice that double quotes are needed to convert into a carriage return.</p>
+	<p>The <code>fopen()</code>, <code>fwrite()</code> and <code>fread()</code> functions are all binary-safe, which means you can use them on binary files without worrying about damage to the file contents. Read more about many of the issues related to binary-safe file manipulation on different platforms at <a href="http://www.php.net/manual/en/function.fopen.php">http://www.php.net/manual/en/function.fopen.php</a>.</p>
+	<p>If I've spoiled you by showing you the one-line shortcut functions for file reads, let me damage you further by introducing you to the <code>file_put_contents()</code> function, which takes a string and writes it to a file in a single line of code.</p>
+{% highlight php %}<?php
 // set file to write
 $filename = '/tmp/dump.txt';
 // write to file
 file_put_contents($filename, "Look, Ma, I wrote a file!") or die('Could not write to file');
 ?>{% endhighlight %}
-	<p>Bear in mind that the directory in which you’re trying to create the
-	file must exist before you can write to it. Forgetting this important
-	step is a common cause of script errors.</p>
+	<p>Bear in mind that the directory in which you're trying to create the file must exist before you can write to it. Forgetting this important step is a common cause of script errors.</p>
 
 	<h2>Information is power</h2>
-	<p>PHP also comes with a bunch of functions that allow you to test the
-	status of a file – for example to find out whether it exists, whether
-	it’s empty, whether it’s readable or writable, and whether it’s a
-	binary or text file. Of these, the most commonly used operator is the
-	file_exists() function, which is used to test for the existence of a
-	specific file.</p>
-	<p>Here’s an example which asks the user to enter the path to a file in
-	a Web form, and then returns a message displaying whether or not the
-	file exists:</p>
-	{% highlight php %}<html>
-<head></head>
-<body>
-<?php
+	<p>PHP also comes with a bunch of functions that allow you to test the status of a file - for example to find out whether it exists, whether it's empty, whether it's readable or writable, and whether it's a binary or text file. Of these, the most commonly used operator is the <code>file_exists()</code> function, which is used to test for the existence of a specific file.</p>
+	<p>Here's an example which asks the user to enter the path to a file in a Web form, and then returns a message displaying whether or not the file exists (keep in mind, you probably don't want to run this on a live server, as a user might be able to deduce information about your system that you don't want them to know):</p>
+{% highlight php %}<?php
 // if form has not yet been submitted
 // display input box
 if (!isset($_POST['file'])) {
 ?>
-	<form action="<?php echo $_SERVER['PHP_SELF']; ?>" method="post">
-		Enter file path <input type="text" name="file">
+	<form method="post">
+		<label for="file">Enter file path</label><input type="text" name="file">
 	</form>
 <?php
 } else {
@@ -327,96 +234,80 @@ if (!isset($_POST['file'])) {
 		echo 'File does not exist!';
 	}
 }
-?>
-</body>
-</html>{% endhighlight %}
-	<p>There are many more such functions. Here’s a brief list, followed by
-	an example that builds on the previous one to provide more information
-	on the file specified by the user.</p>
+?>{% endhighlight %}
+	<p>There are many more such functions. Here's a brief list, followed by an example that builds on the previous one to provide more information on the file specified by the user.</p>
 	<ul>
-		<li>is_dir() – returns a Boolean indicating whether the specified path
-		is a directory</li>
-		<li>is_file() – returns a Boolean indicating whether the specified file
-		is a regular file</li>
-		<li>is_link() – returns a Boolean indicating whether the specified file
-		is a symbolic link</li>
-		<li>is_executable() – returns a Boolean indicating whether the
-		specified file is executable</li>
-		<li>is_readable()- returns a Boolean indicating whether the specified
-		file is readable</li>
-		<li>is_writable()- returns a Boolean indicating whether the specified
-		file is writable</li>
-		<li>filesize() – gets size of file</li>
-		<li>filemtime() – gets last modification time of file</li>
-		<li>filamtime() – gets last access time of file</li>
-		<li>fileowner() – gets file owner</li>
-		<li>filegroup() – gets file group</li>
-		<li>fileperms() – gets file permissions</li>
-		<li>filetype() – gets file type</li>
+		<li><strong>is_dir()</strong> - returns a Boolean indicating whether the specified path is a directory</li>
+		<li><strong>is_file()</strong> - returns a Boolean indicating whether the specified file is a regular file</li>
+		<li><strong>is_link()</strong> - returns a Boolean indicating whether the specified file is a symbolic link</li>
+		<li><strong>is_executable()</strong> - returns a Boolean indicating whether the specified file is executable</li>
+		<li><strong>is_readable()</strong> - returns a Boolean indicating whether the specified file is readable</li>
+		<li><strong>is_writable()</strong> - returns a Boolean indicating whether the specified file is writable</li>
+		<li><strong>filesize()</strong> - gets size of file</li>
+		<li><strong>filemtime()</strong> - gets last modification time of file</li>
+		<li><strong>filamtime()</strong> - gets last access time of file</li>
+		<li><strong>fileowner()</strong> - gets file owner</li>
+		<li><strong>filegroup()</strong> - gets file group</li>
+		<li><strong>fileperms()</strong> - gets file permissions</li>
+		<li><strong>filetype()</strong> - gets file type</li>
 	</ul>
-	<p>This script asks for a file name as input and uses the functions
-	above to return information on it.</p>
-	{% highlight php %}<html>
-<head></head>
-<body>
-<?php
-/* if form has not yet been submitted, display input box */
+	<p>This script asks for a file name as input and uses the functions above to return information on it (the same warnings apply as with the previous script).</p>
+{% highlight php %}<?php
+// if form has not yet been submitted, display input box
 if (!isset($_POST['file'])) {
 ?>
-	<form action="<?php echo $_SERVER['PHP_SELF']; ?>" method="post">
-		Enter file path <input type="text" name="file">
+	<form method="post">
+		<label for="file">Enter file path</label><input type="text" name="file">
 	</form>
 <?php
 } else {
-	echo 'File name: <b>'.$_POST['file']  .'</b><br />';
-	/* check if file exists and display appropriate message */
+	echo 'File name: ' . htmlspecialchars($_POST['file']) . '<br>';
+	// check if file exists and display appropriate message
 	if (file_exists($_POST['file'])) {
 		// print file size
-		echo 'File size: '.filesize($_POST['file']).' bytes<br />';
+		echo 'File size: ' . filesize($_POST['file']) . ' bytes<br>';
 		// print file owner
-		echo 'File owner: '.fileowner($_POST['file']).'<br />';
+		echo 'File owner: ' . htmlspecialchars(fileowner($_POST['file'])) . '<br>';
 		// print file group
-		echo 'File group: '.filegroup($_POST['file']).'<br />';
+		echo 'File group: ' . htmlspecialchars(filegroup($_POST['file'])) . '<br>';
 		// print file permissions
-		echo 'File permissions: '.fileperms($_POST['file']).'<br />';
+		echo 'File permissions: ' . fileperms($_POST['file']) . '<br>';
 		// print file type
-		echo 'File type: '.filetype($_POST['file']).'<br />';
+		echo 'File type: ' . filetype($_POST['file']) . '<br>';
 		// print file last access time
-		echo 'File last accessed on: '.date('Y-m-d', fileatime($_POST['file'])).'<br />';
+		echo 'File last accessed on: ' . date('Y-m-d', fileatime($_POST['file'])) . '<br>';
 		// print file last modification time
-		echo 'File last modified on: '.date('Y-m-d', filemtime($_POST['file'])).'<br />';
+		echo 'File last modified on: ' . date('Y-m-d', filemtime($_POST['file'])) . '<br>';
 		// is it a directory?
 		if (is_dir($_POST['file'])) {
-			echo 'File is a directory <br />';
+			echo 'File is a directory <br>';
 		}
 		// is it a file?
 		if (is_file($_POST['file'])) {
-			echo 'File is a regular file <br />';
+			echo 'File is a regular file <br>';
 		}
 		// is it a link?
 		if (is_link($_POST['file'])) {
-			echo 'File is a symbolic link <br />';
+			echo 'File is a symbolic link <br>';
 		}
 		// is it executable?
 		if (is_executable($_POST['file'])) {
-			echo 'File is executable <br />';
+			echo 'File is executable <br>';
 		}
 		// is it readable?
 		if (is_readable($_POST['file'])) {
-			echo 'File is readable <br />';
+			echo 'File is readable <br>';
 		}
 		// is it writable?
 		if (is_writable($_POST['file'])) {
-			echo 'File is writable <br />';
+			echo 'File is writable <br>';
 		}
 	} else {
-		echo 'File does not exist! <br />';
+		echo 'File does not exist! <br>';
 	}
 }
-?>
-</body>
-</html>{% endhighlight %}
-	<p>And here’s what the output might look like:</p>
+?>{% endhighlight %}
+	<p>And here's what the output might look like:</p>
 	<pre>
 File name: /usr/local/apache/logs/error_log
 File size: 53898 bytes
@@ -429,17 +320,13 @@ File last modified on: 2004-06-20
 File is a regular file
 File is readable
 	</pre>
+	<p>It's worth pointing out something important with this script. Notice the usage of <code>htmlspecialchars</code> in some places. There's a lot of content relevant to the issue, but the basic idea can be demonstrated with a simple example. What happens if a user enters a filename as <code>&lt;script type="text/javascript"&gt;alert('malicious code here);&lt;/script&gt;</code>? The end result would be a user having control of whether Javascript is executed on the page (although some modern browsers might help protect against this style attack). This might not seem like a big deal, but there are many malicious attacks utlizing this kind of attack, termed <a href="http://en.wikipedia.org/wiki/Cross-site_scripting">XSS - Cross Site Scripting</a>. For now, you might like to think of it as "If a user was to input some HTML into this form, would they have any kind of control over the raw value of this variable?", and if so, run the <code>htmlspecialchars</code> function on it. As for what <code>htmlspecialchars</code> actually does, it converts characters like &lt; to the string &amp;lt, rather than a character having an affect on the HTML (beyond a non-special character).</p>
+	<p>We'll revisit this attack, as well as other kinds of PHP security issues later on, but you should familize yourself with the ideas of input escaping as soon as possible.</p>
 
 	<h2>Breaking eggs</h2>
-	<p>So now you know how to read a file, write to it, and test its
-	status. Let’s look at some examples of what you can do with this
-	new-found power.</p>
-	<p>Let’s go back to my Spanish omelette recipe. Let’s suppose I’m feeling
-	generous, and I decide that I’d like to hear what people really think about my culinary skills. Since I have a bunch of recipes that
-	I’d like to share with people, and since they all look something like
-	this:</p>
-	<pre>
-SPANISH OMELETTE
+	<p>So now you know how to read a file, write to it, and test its status. Let's look at some examples of what you can do with this new-found power.</p>
+	<p>Let's go back to my Spanish omelette recipe. Let's suppose I'm feeling generous, and I decide that I'd like to hear what people really think about my culinary skills. Since I have a bunch of recipes that I'd like to share with people, and since they all look something like this:</p>
+<pre>SPANISH OMELETTE
 INGREDIENTS:
 - 1 chopped onion
 - 1 chopped tomato
@@ -450,66 +337,38 @@ METHOD:
 1. Fry onions in a pan
 2. Pour beaten eggs over onions and fry gently
 3. Add tomatoes, green pepper, salt and pepper to taste
-4. Serve with toast or bread
-	</pre>
-	<p>I need a quick way to convert them all into HTML so that they look
-	presentable on my Web site. We’ve already established that I’m lazy, so
-	fuggedaboutme re-creating the recipes in HTML. Instead, I’ll have PHP
-	do the heavy lifting for me:</p>
-	{% highlight php %}<html>
-<head></head>
-<body>
-<?php
+4. Serve with toast or bread</pre>
+	<p>I need a quick way to convert them all into HTML so that they look presentable on my Web site. We've already established that I'm lazy, so fuggedaboutme re-creating the recipes in HTML. Instead, I'll have PHP do the heavy lifting for me:</p>
+{% highlight php %}<?php
 // read recipe file into arra
-$data = file('/usr/local/stuff/that/should/be/elsewhere/omelette.txt') or die('Could not read file!');
-/* first line contains title: read it into variable */
+$data = file('/usr/local/elsewhere/omelette.txt') or die('Could not read file!');
+// first line contains title: read it into variable
 $title = $data[0];
-// remove first line from array
+// remove first line from array so that $data contains everything but the title
 array_shift($data);
 ?>
-<h2><?php echo $title; ?></h2>
+<h2><?php echo htmlspecialchars($title); ?></h2>
 <?php
-/* iterate over content and print it */
+// iterate over content and print it
 foreach ($data as $line) {
-	echo nl2br($line);
+	echo htmlspecialchars($line) . '<br>';
 }
-?>
-</body>
-</html>{% endhighlight %}
-	<p>I’ve used the file() function to read the recipe into an array, and
-	assign the first line (the title) to a variable. That title is then
-	printed at the top of the page. Since the rest of the data is fairly
-	presentable as is, I can simply print the lines to the screen one after
-	the other. Line breaks are automatically handled for me by the
-	extremely cool nl2br() function, which converts regular text linebreaks
-	into the HTML equivalent, the <br /> tag. The end result: an
-	HTML-ized version of my recipe that the world can marvel at. Take a look:</p>
-	<pre>
-&lt;html&gt;
-&lt;head&gt;&lt;/head&gt;&lt;body&gt;
+?>{% endhighlight %}
+	<p>I've used the <code>file()</code> function to read the recipe into an array, and assign the first line (the title) to a variable. That title is then printed at the top of the page. Since the rest of the data is fairly presentable as is, I can simply print the lines to the screen one after the other. Because we have the data as an array with the line breaks in the right place, we can just print each line with a <code>&lt;br&gt;</code> after each element. The end result: an HTML-ized version of my recipe that the world can marvel at. Take a look:</p>
+<pre>&lt;h2&gt;SPANISH OMELETTE&lt;/h2&gt;
+INGREDIENTS:&lt;br&gt;
+- 1 chopped onion&lt;br&gt;
+- 1 chopped tomato&lt;br&gt;
+- 1/2 chopped green pepper&lt;br&gt;
+- 4 beaten eggs&lt;br&gt;
 
-&lt;h2&gt;SPANISH OMELETTE
-&lt;/h2&gt;
-INGREDIENTS:&lt;br /&gt;
-- 1 chopped onion&lt;br /&gt;
-- 1 chopped tomato&lt;br /&gt;
-- 1/2 chopped green pepper&lt;br /&gt;
-- 4 beaten eggs&lt;br /&gt;
-
-- Salt and pepper to taste&lt;br /&gt;
-METHOD:&lt;br /&gt;
-1. Fry onions in a pan&lt;br /&gt;
-2. Pour beaten eggs over onions and fry gently&lt;br /&gt;
-3. Add tomatoes, green pepper, salt and pepper to taste&lt;br /&gt;
-4. Serve with toast or bread&lt;br /&gt;
-
-&lt;/body&gt;
-&lt;/html&gt;
-</pre>
-	<p>If the elegance and creative simplicity of my Spanish omelette recipe
-	has left you speechless, I’m not surprised – many people feel that
-	way. Until you get your voice back: Ciao… and make sure you come back
-	to work through <a href="part6.html">Part Six of PHP 101</a>, which discusses creating your own reusable functions.</p>
+- Salt and pepper to taste&lt;br&gt;
+METHOD:&lt;br&gt;
+1. Fry onions in a pan&lt;br&gt;
+2. Pour beaten eggs over onions and fry gently&lt;br&gt;
+3. Add tomatoes, green pepper, salt and pepper to taste&lt;br&gt;
+4. Serve with toast or bread&lt;br&gt;</pre>
+	<p>If the elegance and creative simplicity of my Spanish omelette recipe has left you speechless, I'm not surprised - many people feel that way. Until you get your voice back: Ciao... and make sure you come back to work through <a href="part6.html">Part Six of PHP 101</a>, which discusses creating your own reusable functions.</p>
       </section>
       <footer>
         <p><small>Hosted on GitHub Pages &mdash; Theme by <a href="http://twitter.com/#!/michigangraham">mattgraham</a></small></p>
