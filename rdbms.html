@@ -124,7 +124,8 @@ title: Relational Databases
         <h2>Making a Connection</h2>
         <p>The first step in using PDO is establishing a connection to the database. This is done with the PDO class constructor.
           For the purposes of this tutorial we will be using SQLite's in memory database so the connection string will be very
-          simple. Create a new file, rmdbs-tutorial.php if you require a name, and enter in the following code:</p>
+          simple. As you edit this file and save it, go ahead and run it either via your server, php-compatible pastbin or php-cli.
+          Create a new file, rmdbs-tutorial.php if you require a name, and enter in the following code:</p>
         {% highlight php %}
         <?php
         $db = new PDO('sqlite::memory:');
@@ -213,32 +214,66 @@ title: Relational Databases
           not passed by reference and subsequently evaluated at execute it is instead bound immediately.</p>
 
         <h2>Queries and Fetching Results</h2>
-        <p>Similar to exec, the query method executes a straight SQL statement but insetad of returning the number of
+        <p>Similar to exec, the query method executes a straight SQL statement but instead of returning the number of
           rows affected it returns a PDOStatement so that data can be retrieved. Just like exec you should not pass
           any user inputted data into this method as no attempt is made by it to prevent SQL injection. Please examine
           and add the following code to your rmdbs-tutorial.php file that you've been editing so far:</p>
         {% highlight php %}
         $stmt = $db->query("SELECT `id`, `country`, `animal` FROM `nationalAnimal`");
         while($row = $stmt->fetch(PDO::FETCH_ASSOC)) {
-          echo 'id:' . $row['id'] . ', country: ' . $row['country'] . ', animal: ' . $row['animal'] . '\n';
+          $results[] =  'id:' . $row['id'] . ', country: ' . $row['country'] . ', animal: ' . $row['animal'];
         }
+        var_dump($results);
         {% endhighlight %}
         <p>The query is a direct copy of the one in the SQL introduction. The new feature introduced here is the PDOStatement
           method of fetch. This, on a row being found, returns the row in the format specified. In the case of the code here,
           this fetch method is asked to return an associative array, or an array with a named key that matches the field names.
-          If no new row is to be found it returns a boolean false, allowing the while loop to end.</p>
+          If no new row is to be found it returns a boolean false, allowing the while loop to end. This code composes each row
+          a string and adds each row to an array for easy output with var_dump.</p>
         <p>TODO: Describe other fetch styles.</p>
 
         <h2>More Prepared Statements With More Results</h2>
         <p>The power of using a database is that you can select data meeting specific criteria and sort it before you bring it
           into PHP. This is advantageous because your database is much better suited to that than PHP. The best policy is to,
-          in so far as it's possible, bring in only the data you need and have it already sorted. Please examine the code below
-          and add it to your rmdbs-tutorial.php file that you've been editing so far:</p>
+          in so far as it's possible, bring in only the data you need and have it already sorted. This tutorial will cover a
+          few basic methods of limiting and sorting data but for more details you really should read more about SQL in general
+          and your database engine in particular. Please examine the code below and add it to your rmdbs-tutorial.php file
+          that you've been editing so far:</p>
         {% highlight php %}
+        $stmt = $db->prepare("SELECT `id`, `country`, `animal` FROM `nationalAnimal` WHERE `id` != :id ORDER BY `country`");
+        $stmt->execute(array(":id" => 1));
+        $rows = $stmt->fetchAll(PDO::FETCH_ASSOC);
+        var_dump($rows);
+        $stmt = $db->prepare("SELECT `country`, `animal` FROM `nationalAnimal` WHERE `id` = :id");
+        $stmt->execute(array(":id" => 3));
+        $rows = $stmt->fetchAll(PDO::FETCH_ASSOC);
+        var_dump($rows);
         {% endhighlight %}
-        <p></p>
+        <p>This short example shows two select statements that are in prepared statements to allow for user input. While in this
+          case the variables are directly inputted they could be replaced with a variable taken from data inputted by the user
+          and would protect against sql injection. The first one selects all the rows except where the id column is a specific
+          number, in this case 1, and then sorts the results by country. The second query selects the rows where id is a specific
+          number. As ID is the primary key there will only be one row selected in this case. Both of these statements are then fetched
+          by a new fetchAll statement. Like fetch, it takes a specific fetch style as a parameter. Unlike fetch, it returns all the rows.</p>
+        <p>One method that is useful, though slightly vendor specific is lastInsertId(). The lastInsertId method can be called right
+          after an insert and, depending on database drivers, return the id of the last inserted row. Too see an example of this insert
+          the following code after one of the single row execute statements earlier:</p>
+        {% highlight php %}
+        $db->lastInsertId();
+        {% endhighlight %}
 
         <h2>Something Goes Wrong</h2>
+        <p>Error handling with PDO depends on the attributes set for the connection. This can be set as exampled below:</p>
+        {% highlight php %}
+        $db->setAttribute(PDO::ATTR_ERRMODE, PDO::ERRMODE_EXCEPTION);
+        {% endhighlight %}
+        <p>By default PDO::ATTR_ERRMODE is set to PDO::ERRMODE_SILENT. In PDO::ERRMODE_SILENT most methods in the PDO and
+          PDOStatement classes will return FALSE on error, and then to obtain information regarding the error the method errorInfo
+          will need to be called on the PDO or PDOSTatement object as appropriate.</p>
+        <p>The other useful error mode is PDO::ERRMODE_EXCEPTION. This is useful if you are using exceptions for error handling
+          else where in your application. Furthermore, uncaught exceptions tend to be very vocal about a problem and instead of
+          checking for false returns and calling errorInfo every statement you can just wait for the exception to show for that
+          time a quote was slightly off.</p>
 
       </section>
       <footer>
