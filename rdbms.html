@@ -1,5 +1,5 @@
 ---
-title: Databases and otters
+title: Relational Databases
 ---
 <!doctype html>
 <html>
@@ -32,856 +32,214 @@ title: Databases and otters
 
     <div class="wrapper">
       {% include nav.html %}
+
       <section>
-      	<h2>Mix and match</h2>
-	<p>One of the most compelling things PHP has going for it is its
-	support for a variety of database management systems, including MySQL,
-	PostgreSQL, Oracle and Microsoft Access. By virtue of this support, PHP
-	developers can create sophisticated data-driven Web applications at a
-	fraction of the time and cost required by competing alternatives. And
-	nowhere is this more clear than in PHP’s longtime support of MySQL, the
-	very fast, very reliable and very feature-rich open-source RDBMS.</p>
-	<p>By using PHP and MySQL together, developers can benefit from huge
-	savings on the licensing costs of commercial alternatives, and also
-	leverage off the tremendous amount of thought PHP and MySQL developers
-	have put into making sure that the two packages work together
-	seamlessly and smoothly. And since both PHP and MySQL are open-source
-	projects, when you use the two of them together you know
-	you’re getting the most up-to-date technology available. And that’s
-	always a good thought to go to bed with.</p>
-	<p>OK. Enough of the marketing talk. Let’s get down to business.</p>
-	<p>In this issue of PHP 101, I’m going to show you how to use PHP to
-	extract data from a database, and use that data to dynamically build a
-	Web page. In order to try out the examples in this tutorial, you’ll
-	need a working MySQL installation, which you can obtain from the <a href="http://www.mysql.com">MySQL Web site</a>.
-	If you have some knowledge of SQL
-	(Structured Query Language, the language used to interact with a
-	database server) you’ll find it helpful, but it’s not essential.</p>
+        <h2>Relational Databases in PHP</h2>
+        <p>One of the main reasons you might be looking to use PHP is to store and
+          retrieve data from a database. There are numerous database servers out there
+          and many ways for PHP to access them. This tutorial will cover database access
+          using the PDO classes. For easier setup in a learning environment this tutorial
+          will use the <a href="http://www.sqlite.org/">SQLite</a> database engine as it
+          is commonly already included in PHP installs and supports an in-memory database
+          so that there is no server to setup for these examples. The SQL used in this
+          tutorial will strive to be simple and portable over many databases as teaching
+          the finer points of SQL, especially as geared towards your specific server, is
+          not within the scope of this document. But keep in mind that PDO does not abstract
+          your SQL queries it just provides a unified API for interacting with many database
+          engines, if you change engines you will likely need to modify the SQL you used.</p>
 
-	<h2>Building blocks</h2>
-	<p>In order to use MySQL and PHP together, your PHP build must include
-	support for MySQL. On UNIX, this is accomplished by adding the
-	--with-mysql option to the configure script
-	when building PHP on UNIX, and pointing PHP to the MySQL client
-	libraries. On Windows, the MySQL client libraries are built in to
-	PHP 4 and activated by default. In PHP 5, pre-built .dll files
-	are included with the Windows distribution. Read more about this at
-	<a href="http://www.php.net/manual/en/ref.mysql.php">http://www.php.net/manual/en/ref.mysql.php</a>.</p>
-	<p>Unix users should note that PHP 4 ships with a set of MySQL
-	client libraries, which are activated by default; however, PHP
-	5 no longer bundles these libraries due to licensing issues, so you
-	need to obtain, install and activate them yourself. They’re included
-	with the MySQL distribution, and are installed automatically when you
-	install MySQL. To activate the MySQL extension, ext/mysql,
-	add the --with-mysql option to PHP’s configure
-	script. For more information on this change, read
-	<a href="http://www.php.net/manual/en/faq.databases.php#faq.databases.mysql.php5">http://www.php.net/manual/en/faq.databases.php#faq.databases.mysql.php5</a>.</p>
-	<p>And finally (as if all that wasn’t quite confusing enough) PHP 5 also
-	comes with a new MySQL extension, called ext/mysqli
-	(MySQL Improved). You can use this new extension to access the new
-	features in MySQL 4.1.2 or better, and to gain the benefits of improved
-	speed and security. To activate this extension on UNIX, add the
-	--with-mysqli option to PHP’s configure script,
-	and point PHP to the mysql_config program that comes with
-	MySQL 4.1 and above. For Windows users, a pre-built version of
-	ext/mysqli is included in the win32 PHP distribution. Read
-	more about this at <a href="http://www.php.net/manual/en/ref.mysqli.php">http://www.php.net/manual/en/ref.mysqli.php</a>.</p>
-	<p>To figure out which extension you need, use the following rule of thumb:
-	<ul>
-		<li>If you need the new features in MySQL 4.1.2 or better, or if you’re
-		using an older version of MySQL but still want to benefit from the
-		speed/security improvements in the new extension, use ext/mysqli.</li>
-		<li>If you don’t fall into either of the categories above, or don’t know what I’m
-		talking about, use regular ext/mysql.</li>
-	</ul>
-	</p>
-	<p>In case you were wondering, this tutorial covers both ext/mysql
-	and ext/mysqli, so you actually get two for the price of
-	one. Keep reading, and let me introduce you to MySQL.</p>
+        <h2>Building Blocks</h2>
+        <p>To use PDO and SQLite, or any other database, then support for the proper drivers must be
+          enabled on the installation of PHP you are using. It is fairly common, but not assured,
+          that PDO and SQLite are already built in. To check this look at the output from phpinfo();
+          on the server you wish to run your code on. If you are running PHP from command line then
+          'php -m' will work.</p>
+        <p>You should see 'PDO' and 'pdo_sqlite' as modules listed for this tutorial to work</p>
+        <p>TODO: Instructions on installing</p>
 
-	<h2>Animal magnetism</h2>
-	<p>Every MySQL database is composed of one or more tables. These
-	tables, which structure data into rows and columns, are what lend
-	organization to the data.</p>
-	<p>Here’s an example of what a typical table looks like:</p>
-	<pre>+----+-----------+----------+
-| id | country   | animal   |
+        <h2>(Very) Basic SQL</h2>
+        <p>At the most basic a database is composed of one or more tables. Tables organize data two
+          dimensionally into rows and columns. A typical table might look something like:</p>
+        <pre>
+  Table: nationalAnimal
 +----+-----------+----------+
-|  1 | America   | eagle    |
-|  2 | China     | dragon   |
-|  3 | England   | lion     |
-|  4 | India     | tiger    |
-|  5 | Australia | kangaroo |
-|  6 | Norway    | elk      |
-+----+-----------+----------+</pre>
-	<p>As you can see, a table divides data into rows, with a new entry (or
-	record) on every row. The data in each row is further broken
-	down into cells (or fields), each of which contains a value for
-	a particular attribute of the data. For example, if you consider the
-	record for the country “India”, you’ll see that the record is clearly
-	divided into separate fields for record number, country name and
-	national animal.</p>
-	<p>The rows within a table are not arranged in any particular order -
-	they can be sorted alphabetically, by number, by name, or by any
-	other criteria you choose to specify. It is therefore necessary to have
-	some method of identifying a specific record in a table. In the example
-	above, each record is identified by a unique number; this unique field
-	is referred to as the primary key for that table.</p>
-	<p>You use the Structured Query Language, SQL, to interact with the MySQL
-	server and tell it to create a table, mark a field as primary, insert
-	records, edit records, retrieve records… basically, anything that
-	involves manipulating the data or the database. To see how this works,
-	examine the following SQL, which creates the table above:</p>
-	{% highlight sql %}
-CREATE DATABASE testdb;
-CREATE TABLE `symbols` (
-	`id` int(11) NOT NULL auto_increment,
-	`country` varchar(255) NOT NULL default '',
-	`animal` varchar(255) NOT NULL default '',
-	PRIMARY KEY  (`id`)
-) TYPE=MyISAM;
-INSERT INTO `symbols` VALUES (1, 'America', 'eagle');
-INSERT INTO `symbols` VALUES (2, 'China', 'dragon');
-INSERT INTO `symbols` VALUES (3, 'England', 'lion');
-INSERT INTO `symbols` VALUES (4, 'India', 'tiger');
-INSERT INTO `symbols` VALUES (5, 'Australia', 'kangaroo');
-INSERT INTO `symbols` VALUES (6, 'Norway', 'elk');
-{% endhighlight %}
-	<p>You can enter these commands either interactively or
-	non-interactively through the MySQL commandline client program,
-	which you run by navigating to the mysql/bin
-	directory from your shell or DOS box and typing – with no
-	; because this is a shell command – either
-	mysql, or mysql db_name if you want
-	to choose an existing database to work with. Read
-	<a href="http://dev.mysql.com/doc/mysql/en/mysql.html">http://dev.mysql.com/doc/mysql/en/mysql.html</a>
-	for more information
-	on how to use the MySQL commandline client, and the tutorial at
-	<a href="http://www.melonfire.com/community/columns/trog/article.php?id=39">http://www.melonfire.com/community/columns/trog/article.php?id=39</a>
-	to understand what each of the SQL commands above does. SQL is a
-	lot like spoken English, so it won’t take you very long to pick it
-	up. Just don’t try to turn those backticks into single quotation marks.</p>
-	<p>Once the data has been imported, run a quick SELECT
-	query to check that everything is working as it should be:</p>
-	<pre>
-mysql> SELECT * FROM `symbols`;
+| id | country   | animal   | <-- column headings (fields)
 +----+-----------+----------+
-| id | country   | animal   |
-+----+-----------+----------+
-|  1 | America   | eagle    |
+|  1 | America   | eagle    | <-- rows
 |  2 | China     | dragon   |
 |  3 | England   | lion     |
 |  4 | India     | tiger    |
 |  5 | Australia | kangaroo |
 |  6 | Norway    | elk      |
 +----+-----------+----------+
-6 rows in set (0.06 sec)
-</pre>
-	<p>In English, the query above means “show me all the records from the
-	table named symbols“. If you saw the same output as above,
-	you’re good to go!</p>
+        </pre>
+        <p>As you can see each table has a heading that has the column (field) names and then rows of
+          data. Each row contains a value for each field. Each field can have a specified data type.
+          Each database engine has their own set of data types and you should review the manual for your
+          database of choice for further details. At it's most basic, and all that SQLite supports, are
+          integers, floating point numbers, strings, and binary blobs. Other database engines have support
+          for finer grained versions of the previously mentioned types and also typically have types for
+          storing dates, times, and boolean values.</p>
+        <p>Database tables should have a primary key. Typically this is a column like the 'id' column
+          displayed above, but the primary key can also be a composite value generated from multiple columns.
+          The idea is to have a unique identifier for a row. In addition many database engines support
+          automatically incrementing an integer value for a column. This is commonly paired with the 
+          primary key.</p>
+        <p>As a brief overview of SQL commands you will be seeing in this tutorial examine the following SQL
+          statements keeping in mind that this tutorial is using the SQLite database engine. The following SQL
+          would create, and display something similar to the above table:</p>
+        {% highlight sql %}
+        CREATE TABLE `nationalAnimal` (
+          `id` INTEGER PRIMARY KEY AUTOINCREMENT,
+          `country` VARCHAR(255),
+          `animal` VARCHAR(255)
+        );
+        INSERT INTO `nationalAnimal` (`country`, `animal`) VALUES ('America', 'eagle');
+        INSERT INTO `nationalAnimal` (`country`, `animal`) VALUES ('China', 'dragon');
+        INSERT INTO `nationalAnimal` (`country`, `animal`) VALUES ('England', 'lion');
+        INSERT INTO `nationalAnimal` (`country`, `animal`) VALUES ('India', 'tiger');
+        INSERT INTO `nationalAnimal` (`country`, `animal`) VALUES ('Australia', 'kangaroo');
+        INSERT INTO `nationalAnimal` (`country`, `animal`) VALUES ('Norway', 'elk');
+        SELECT `id`, `country`, `animal` FROM `nationalAnimal`;
+        {% endhighlight %}
+        <p>These commands can be entered using the sqlite3 command line client if you so desire, but install and
+          setup of the client is beyond the scope of this tutorial. For now just look over the SQL to familiarize
+          yourself with the commands as they are explained.</p>
+        <p>The first SQL command used above is 'CREATE TABLE'. This command creates the database table to store the
+          data. Because table creation sets up the data types for your fields it is commonly the most engine specific
+          SQL code a developer new to databases will encounter. In this specific example we are creating a table with
+          'nationalAnimal' as the name with 3 fields for data. First of which is 'id' which is an integer field that
+          is setup to be the primary key and have the value increment automatically. Second and third we have 'country'
+          and 'animal'. Those two fields both hold a string up to 255 characters in length.</p>
+        <p>The second set of SQL commands we have are 'INSERT'. This command deals with inserting the data into the table.
+          You tell it what table to insert the data into, list out the field names you wish to insert data into, then
+          associate the values to insert into the table. As 'id' is a special column the database engine takes care of
+          automatically inserting the integer. Each insert command inserts a new row into the database.</p>
+        <p>The third SQL command contained above is 'SELECT'. This command is one of the more commonly used when accessing
+          databases. In a select statement you first select the fields that you want and then indicate which table to
+          select from. The select statement could also be written as SELECT * FROM `nationalAnimal`; but it is generally
+          recommended that you specify which fields you want so that you can save memory by ignoring fields that are not
+          needed.</p>
 
-	<h2>Hello database</h2>
-	<p>Now, let’s use PHP to do exactly the same thing. You could use PHP
-	to set up the database from the start, but as ours already exists
-	we’ll simply fire a SELECT query at the database
-	‘testdb’, and display the results in an HTML page:</p>
-	{% highlight php %}<html>
-<head></head>
-<body>
-<?php
-// set database server access variables:
-$host = "localhost";
-$user = "test";
-$pass = "test";
-$db = "testdb";
-// open connection
-$connection = mysql_connect($host, $user, $pass) or die ("Unable to connect!");
-// select database
-mysql_select_db($db) or die ("Unable to select database!");
-// create query
-$query = "SELECT * FROM symbols";
-// execute query
-$result = mysql_query($query) or die ("Error in query: $query. ".mysql_error());
-// see if any rows were returned
-if (mysql_num_rows($result) > 0) {
-	// yes
-	// print them one after another
-	echo "<table cellpadding=10 border=1>";
-	while($row = mysql_fetch_row($result)) {
-		echo "<tr>";
-		echo "<td>".$row[0]."</td>";
-		echo "<td>" . $row[1]."</td>";
-		echo "<td>".$row[2]."</td>";
-		echo "</tr>";
-	}
-	echo "</table>";
-} else {
-	// no
-	// print status message
-	echo "No rows found!";
-}
-// free result set memory
-mysql_free_result($result);
-// close connection
-mysql_close($connection);
-?>
-</body>
-</html>{% endhighlight %}
-	<p>Here’s what the result looks like:</p>
-	<img src="images/part8-table1.png" alt="Resultant table">
-	<p>As you can see, using PHP to get data from a database involves
-	several steps, each of which is actually a pre-defined PHP function.
-	Let’s dissect each step:
-	<ol>
-		<li><p>The first thing to do is specify some important information needed
-		to establish a connection to the database server. This information
-		includes the server name, the username and password required to gain
-		access to it, and the name of the database to query. These values are
-		all set up in regular PHP variables.</p>
-		{% highlight php %}<?php
-$host = "localhost";
-$user = "test";
-$pass = "test";
-$db = "testdb";
-?>{% endhighlight %}
-		</li>
-		<li><p>To begin communication with a MySQL database server, you need to
-		open a connection to that server. All communication between PHP and
-		the database server takes place through this connection.</p>
-		<p>In order to initialize this connection, PHP offers the
-		mysql_connect() function:</p>
-		{% highlight php %}<?php
-$connection = mysql_connect($server, $user, $pass);
-?>{% endhighlight %}
-		<p>All the parameters in mysql_connect()are optional, but there
-		are three you will generally need to use anywhere beyond your own machine:
-		the database server name, username and password. If the database server
-		and the Web server are running on the same physical machine, you can use
-		localhost as the database server name this is in fact the
-		default value supplied by PHP.</p>
-		<p>mysql_connect() returns a “link identifier”, which is stored
-		in the variable $connection. This identifier is used when
-		communicating with the database.</p>
-		</li>
-		<li><p>Once you have a connection to the database, you must select
-		a database for use with the mysql_select_db() function:</p>
-		{% highlight php %}<?php
-mysql_select_db($db) or die ("Unable to select database!");
-?>{% endhighlight %}
-		<p>This function must be passed the name of the database to be used for
-		all subsequent queries. An optional second argument here is the link
-		identifier; if no identifier is specified, the last opened link is
-		assumed. If you have two or more database connections open
-		simultaneously, it’s a good idea to specify the link identifier as the
-		second argument to mysql_select_db() – and indeed to all other
-		mysql_* functions in the script, so that PHP doesn’t get confused about
-		which connection to use where.</p>
-		</li>
-		<li><p>The next step is to create the query and execute it. This
-		is accomplished with the mysql_query() function.</p>
-		{% highlight php %}<?php
-$query = "SELECT * FROM symbols";
-$result = mysql_query($query) or die ("Error in query: $query. ".mysql_error());
-?>{% endhighlight %}
-		<p>This function also needs two parameters: the query string and the
-		link identifier for the connection. Again, if no link identifier is
-		specified, the last opened link is used. Depending on whether or not
-		the query was successful, the function returns true or false; a failure
-		can be caught via the ...or die() clause of the statement,
-		and the mysql_error() function can be used to display the
-		corresponding error message.</p>
-		</li>
-		<li><p>If mysql_query() is successful, the result set returned
-		by the query is stored in the variable $result. This result set may
-		contain one or more rows or columns of data, depending on your query. You can
-		retrieve specific subsets of the result set with different PHP functions,
-		including the one used here – the mysql_fetch_row() function -
-		which fetches a single row of data as an array called $row. Fields
-		in that row can then be accessed using standard PHP array notation.</p>
-		<p>Each time you call mysql_fetch_row(), the next record in the result
-		set is returned. This makes mysql_fetch_row() very suitable for
-		use in a while() or for() loop.</p>
-		{% highlight php %}<?php
-if (mysql_num_rows($result) > 0) {
-	while($row = mysql_fetch_row($result)) {
-		echo "<td>".$row[0]."</td>";
-		echo "<td>".$row[1]."</td>";
-		echo "<td>".$row[2]."</td>";
-	}
-}
-?>{% endhighlight %}
-		<p>Notice that the call to mysql_fetch_row() is wrapped in a
-		conditional test, which first checks to see if any rows were returned
-		at all. This information is provided by the mysql_num_rows()
-		function, which contains the number of rows returned by the query. Obviously,
-		you can only use this function with queries that return data, like
-		SELECT or SHOW.It is not appropriate for use with
-		INSERT, UPDATE, DELETE or similar queries.</p>
-		<p>There are several other alternatives to mysql_fetch_row(),
-		which will be explained a little later.</p>
-		</li>
-		<li><p>Finally, since each result set returned after a query
-		occupies memory, it’s a good idea to use the mysql_free_result()
-		function to free up the used memory. After the result set is freed, if no
-		further queries are to be run, you can close the connection to the MySQL
-		server with mysql_close().</p>
-		{% highlight php %}<?php
-mysql_free_result($result);
-mysql_close($connection);
-?>{% endhighlight %}
-		</li>
-	</ol>
+        <h2>Making a Connection</h2>
+        <p>The first step in using PDO is establishing a connection to the database. This is done with the PDO class constructor.
+          For the purposes of this tutorial we will be using SQLite's in memory database so the connection string will be very
+          simple. Create a new file, rmdbs-tutorial.php if you require a name, and enter in the following code:</p>
+        {% highlight php %}
+        <?php
+        $db = new PDO('sqlite::memory:');
+        {% endhighlight %}
+        <p>In this code we create a new instance of the PDO class, stored to the variable $db, in this we pass to the constructor
+          the data source name (dsn) string 'sqlite::memory:' this tells PDO to use the sqlite driver, and the driver specific
+          command of :memory: to create a new database in memory. PDO::__construct has several more options which are outside
+          the scope of this introductory tutorial but can be viewed in the php manual at <a href="http://php.net/manual/en/pdo.construct.php">
+          http://php.net/manual/en/pdo.construct.php</a>.</p>
 
-	<h2>Different strokes...</h2>
-	<p>You can also use PHP’s mysql_fetch_row() and list()
-	functions to obtain a simple array of values, and then assign these values to
-	different variables – a variation of the technique in the previous section.
-	Take a look (only the while() loop changes):</p>
-	{% highlight php %}<html>
-<head></head>
-<body>
-<?php
-// set server access variables
-$host = "localhost";
-$user = "test";
-$pass = "test";
-$db = "testdb";
-// open connection
-$connection = mysql_connect($host, $user, $pass) or die ("Unable to connect!");
-// select database
-mysql_select_db($db) or die ("Unable to select database!");
-// create query
-$query = "SELECT * FROM symbols";
-// execute query
-$result = mysql_query($query) or die ("Error in query: $query. ".mysql_error());
-// see if any rows were returned
-if (mysql_num_rows($result) > 0) {
-	// yes
-	// print them one after another
-	echo "<table cellpadding=10 border=1>";
-	while(list($id, $country, $animal)  = mysql_fetch_row($result)) {
-		echo "<tr>";
-		echo "<td>$id</td>";
-		echo "<td>$country</td>";
-		echo "<td>$animal</td>";
-		echo "</tr>";
-	}
-	echo "</table>";
-} else {
-	// no
-	// print status message
-	echo "No rows found!";
-}
-// free result set memory
-mysql_free_result($result);
-// close connection
-mysql_close($connection);
-?>
-</body>
-</html>{% endhighlight %}
-	<p>In this case, the list() function is used to assign different
-	elements of the result set to PHP variables, which are then used when
-	rendering the page.</p>
-	<p>You can use PHP’s mysql_fetch_assoc() function to represent each
-	row as an associative array of field-value pairs – a minor variation of the
-	technique used above:</p>
-	{% highlight php %}<html>
-<head></head>
-<body>
-<?php
-// set server access variables
-$host = "localhost";
-$user = "test";
-$pass = "test";
-$db = "testdb";
-// open connection
-$connection = mysql_connect($host, $user, $pass) or die ("Unable to connect!");
-// select database
-mysql_select_db($db) or die ("Unable to select database!");
-// create query
-$query = "SELECT * FROM symbols";
-// execute query
-$result = mysql_query($query) or die ("Error in query: $query. ".mysql_error());
-// see if any rows were returned
-if (mysql_num_rows($result) > 0) {
-	// yes
-	// print them one after another
-	echo "<table cellpadding=10 border=1>";
-	while($row = mysql_fetch_assoc($result)) {
-		echo "<tr>";
-		echo "<td>".$row['id']."</td>";
-		echo "<td>".$row['country']."</td>";
-		echo "<td>".$row['animal']."</td>";
-		echo "</tr>";
-	}
-	echo "</table>";
-} else {
-	// no
-	// print status message
-	echo "No rows found!";
-}
-// free result set memory
-mysql_free_result($result);
-// close connection
-mysql_close($connection);
-?>
-</body>
-</html>{% endhighlight %}
-	<p>Notice that in this case, field values are accessed using the field
-	name instead of the index.</p>
-	<p>Of all the alternatives, however, the function I like the most is
-	the mysql_fetch_object() function, which returns each
-	row as an object (remember them from <a href="part7.html">Part Seven</a>?) with properties
-	corresponding to the field names:</p>
-	{% highlight php %}<html>
-<head></head>
-<body>
-<?php
-// set server access variables
-$host = "localhost";
-$user = "test";
-$pass = "test";
-$db = "testdb";
-// open connection
-$connection = mysql_connect($host, $user, $pass) or die ("Unable to connect!");
-// select database
-mysql_select_db($db) or die ("Unable to select database!");
-// create query
-$query = "SELECT * FROM symbols";
-// execute query
-$result = mysql_query($query) or die ("Error in query: $query. ".mysql_error());
-// see if any rows were returned
-if (mysql_num_rows($result) > 0) {
-	// yes
-	// print them one after another
-	echo "<table cellpadding=10 border=1>";
-	while($row  = mysql_fetch_object($result)) {
-		echo "<tr>";
-		echo "<td>".$row->id."</td>";
-		echo "<td>".$row->country."</td>";
-		echo "<td>".$row->animal."</td>";
-		echo "</tr>";
-	}
-	echo "</table>";
-} else {
-	// no
-	// print status message
-	echo "No rows found!";
-}
-// free result set memory
-mysql_free_result($result);
-// close connection
-mysql_close($connection);
-?>
-</body>
-</html>{% endhighlight %}
-	<p>Here, each $row object is created with properties
-	corresponding to the field names in that row. Row values can
-	thus be accessed using standard object->property
-	notation.</p>
-	<p>If you’re the type that likes to have your cake and eat it too, you
-	will probably enjoy the mysql_fetch_array() function, which
-	returns both an associative array and a numerically-indexed array, a
-	combination of the mysql_fetch_row() and
-	mysql_fetch_assoc() functions. Read about it at
-	<a href="http://www.php.net/manual/en/function.mysql-fetch-array.php">http://www.php.net/manual/en/function.mysql-fetch-array.php</a>.</p>
+        <h2>Executing Statements</h2>
+        <p>The exec method of PDO directly executes the SQL and returns the number of rows affected. Mainly this command should
+          be used for executing statements that are commands to your database engine or things like creating tables. Add the
+          following code to your rmdbs-tutorial.php file you created earlier:</p>
+        {% highlight php %}
+        $sql_createtable = "CREATE TABLE `nationalAnimal` (`id` INTEGER PRIMARY KEY AUTOINCREMENT, `country` VARCHAR(255), `animal` VARCHAR(255))";
+        $db->exec($sql_createtable);
+        {% endhighlight %}
+        <p>You may recognize the CREATE TABLE syntax from before. The exec method accepts a string and runs it on the database that you
+          connected to when creating the $db variable. Here we assigned the CREATE TABLE string to $sql_createtable and passed it to the
+          exec method there by running the CREATE TABLE against the database.</p>
 
-	<h2>... for different folks</h2>
-	<p>If you’re using PHP 5, you can do the same thing using the new
-	ext/mysqli extension, which offers a number of new features. This
-	extension can be used in two ways: procedural (using functions), and
-	object-oriented (using class methods and properties). Consider the next
-	script, which uses ext/mysqli in a procedural manner:</p>
-	{% highlight php %}<html>
-<head></head>
-<body>
-<?php
-// set server access variables
-$host = "localhost";
-$user = "test";
-$pass = "test";
-$db = "testdb";
-// open connection
-$connection = mysqli_connect($host, $user, $pass, $db) or die ("Unable to connect!");
-// create query
-$query = "SELECT * FROM symbols";
-// execute query
-$result = mysqli_query($connection, $query) or die ("Error in query: $query. ".mysqli_error());
-// see if any rows were returned
-if (mysqli_num_rows($result) > 0) {
-	// yes
-	// print them one after another
-	echo "<table cellpadding=10 border=1>";
-	while($row = mysqli_fetch_row($result)) {
-		echo "<tr>";
-		echo "<td>".$row[0]."</td>";
-		echo "<td>".$row[1]."</td>";
-		echo "<td>".$row[2]."</td>";
-		echo "</tr>";
-	}
-	echo "</table>";
-} else {
-	// no
-	// print status message
-	echo "No rows found!";
-}
-// free result set memory
-mysqli_free_result($result);
-// close connection
-mysqli_close($connection);
-?>
-</body>
-</html>{% endhighlight %}
-	<p>As you can see, this looks a lot like the code written for
-	ext/mysql. The only real difference – at least to the naked eye
-	- is the fact that function names now begin with mysqli_* instead of mysql_*.
-	Of course, there are a whole bunch of differences under the hood:
-	ext/mysqli is faster, more secure and more powerful than regular
-	ext/mysql, and also includes support for prepared statements,
-	bound result sets, multiple simultaneous queries, transactions and a whole
-	bunch of other cool stuff.</p>
-	<p>You can also use ext/mysqli in an object-oriented way,
-	where each task – connecting, querying, fetching – is actually a method
-	of the mysqli() object:</p>
-	{% highlight php %}<html>
-<head></head>
-<body>
-<?php
-// set server access variables
-$host = "localhost";
-$user = "test";
-$pass = "test";
-$db = "testdb";
-// create mysqli object
-// open connection
-$mysqli = new mysqli($host, $user, $pass, $db);
-// check for connection errors
-if (mysqli_connect_errno()) {
-	die("Unable to connect!");
-}
-// create query
-$query = "SELECT * FROM symbols";
-// execute query
-if ($result = $mysqli->query($query)) {
-	// see if any rows were returned
-	if ($result->num_rows > 0) {
-		// yes
-		// print them one after another
-		echo "<table cellpadding=10 border=1>";
-		while($row = $result->fetch_array()) {
-			echo "<tr>";
-			echo "<td>".$row[0]."</td>";
-			echo "<td>".$row[1]."</td>";
-			echo "<td>".$row[2]."</td>";
-			echo "</tr>";
-		}
-		echo "</table>";
-	} else {
-		// no
-		// print status message
-		echo "No rows found!";
-	}
-	// free result set memory
-	$result->close();
-} else {
-	// print error message
-	echo "Error in query: $query. ".$mysqli->error;
-}
-// close connection
-$mysqli->close();
-?>
-</body>
-</html>{% endhighlight %}
-	<p>Here, the new keyword is used to instantiate an object of class
-	mysqli, and pass the object constructor connection information
-	(including the database name). The resulting object, stored in the variable
-	$mysqli, then exposes methods and properties to perform the
-	tasks of querying, fetching and processing rows, and handling errors.</p>
-	<p>If you look closely at the two scripts above, you’ll notice the numerous
-	similarities between the function and method names, and the structure of
-	the script. Of the two, though, the object-oriented method is recommended,
-	especially in light of the new object model in PHP 5.</p>
-	<p>A couple of other important differences to keep in mind:
-	<ol>
-		<li>With ext/mysqli, you can include the database name in the
-		arguments passed to the mysqli_connect() function or to the
-		mysqli()constructor.</li>
-		<li>When calling mysqli_query() or the mysqli
-		object’s query() method, the link identifier is mandatory,
-		not optional.</li>
-	</ol>
-	</p>
+        <h2>Prepared Statements</h2>
+        <p>If you have user generated input to your database you should ALWAYS use prepared statements. Prepared
+          statements help prevent SQL injection attacks by separating the SQL commands and the data when
+          communicating with the database engine. They can also optimize your application by allowing the client
+          and/or server to cache aspects of the query if you are calling PDOStatement::execute multiple times.
+          One thing prepare cannot do is parameterize table or field names, if you need to allow a user input to
+          select one of those then you should white list options that the user could chose and do not directly
+          associate the input with the statement. PDO::prepare if called successfully will return a PDOStatement
+          object for you to further call methods on to finish the process. In using prepared statements the SQL
+          statement can contain zero or more named or question mark parameter markers. You cannot mix named and
+          ? prameters. This tutorial will only use named parameters as question mark parameters offer no advantage.
+          One caveat to named parameters is you cannot use the same name multiple times. To use question mark
+          parameters you must fill them in the same order they were setup and provide no context for what is expected.
+          This section of the tutorial will examine, in addition to PDO::prepare, the bindParam, bindValue, and
+          execute methods of PDOStatement. Please examine and add the code below to your rmdbs-tutorial.php that
+          was created, then modified, earlier:</p>
+        {% highlight php %}
+        $sql_prepare = "INSERT INTO `nationalAnimal` (`country`, `animal`) VALUES (:country, :animal)";
+        /** mutiple inserts with bindParam **/
+        $stmt = $db->prepare($sql_prepare);
+        $stmt->bindParam(':country', $country, PDO::PARAM_STR);
+        $stmt->bindParam(':animal', $animal, PDO::PARAM_STR);
+        $foo[] = array('America', 'eagle');
+        $foo[] = array('China', 'dragon');
+        foreach($foo as $data) {
+          $country = $data[0];
+          $animal = $data[1];
+          $stmt->execute();
+        }
+        /** multiple inserts with execute **/
+        $stmt = $db->prepare($sql_prepare);
+        $bar[] = array(':country' => 'England', ':animal' => 'lion');
+        $bar[] = array(':country' => 'India', ':animal' => 'tiger');
+        foreach($bar as $data) {
+          $stmt->execute($data);
+          // an alternative method below that (could) result in less typing depending on how the array is constructed
+          // $stmt->execute(array(':country' => $data[':country'], ':animal' => $data[':animal']));
+        }
+        /** single insert with bindValue, then execute **/
+        $stmt = $db->prepare($sql_prepare);
+        $stmt->execute(array(':country' => 'Australia', ':animal' => 'kangaroo');
+        $stmt->bindValue(':country', 'Norway', PDO::PARAM_STR);
+        $stmt->bindValue(':animal', 'elk', PDO::PARAM_STR);
+        $stmt->execute();
+        {% endhighlight %}
+        <p>As demonstrated there are multiple ways to pass data into a prepared statement. The simplest, and one
+          used in the rest of this tutorial, is passing parameters directly to the execute method. This tutorial
+          will use passing directly to the execute method from here on out. This is due to that all that is
+          required is passing an array of values with the key matching the parameter.</p>
+        <p>The first thing to see is our insert statement, from the brief intro to SQL we saw 6 statements with
+          country names and animals. In this one, assigned to $sql_prepare, we have replaced those with the named
+          parameter placeholders :country and :animal. For named parameters they must be a colon (:) followed by
+          the name you wish them to be known by.</p>
+        <p>The first block of executed statements we insert two rows using bindParam. This binds the variable to the
+          parameter by reference and as such is only evaluated when execute is called. We used this feature to loop
+          through an array holding two country/animal pairs.</p>
+        <p>The second block shows inserting two more rows by passing the values directly to the execute method. This
+          block of code shows two ways of doing that. One way involves pre-constructing the array to match the format
+          required, the other just passes the values into a new array created as part of the attribute passed to the
+          execute method.</p>
+        <p>The third block of code shows single row insertions either by passing directly to the execute method, or by
+          using bindValue. In passing directly to the execute method it's largely the same as the previous section, just
+          without the loop to insert multiple rows. The bindValue method is similar to the bindParam but the binding is
+          not passed by reference and subsequently evaluated at execute it is instead bound immediately.</p>
 
-	<h2>Surgical insertion</h2>
-	<p>So now you know how to execute a SELECT query to retrieve a
-	result set from the database. However, you can also use PHP’s MySQL API for
-	queries that don’t return a result set – for example, an INSERT
-	or UPDATE query. Consider the following example, which demonstrates
-	this by asking for user input through a form and then INSERT-ing
-	that data into the database:</p>
-	{% highlight php %}<html>
-<head></head>
-<body>
-<?php
-if (!isset($_POST['submit'])) {
-	// form not submitted
-	?>
-	<form action="<?=$_SERVER['PHP_SELF']?>" method="post">
-		Country: <input type="text" name="country"><br>
-		National animal: <input type="text" name="animal"><br>
-		<input type="submit" name="submit">
-	</form>
-	<?php
-} else {
-	// form submitted
-	// set server access variables
-	$host = "localhost";
-	$user = "test";
-	$pass = "test";
-	$db = "testdb";
+        <h2>Queries and Fetching Results</h2>
+        <p>Similar to exec, the query method executes a straight SQL statement but insetad of returning the number of
+          rows affected it returns a PDOStatement so that data can be retrieved. Just like exec you should not pass
+          any user inputted data into this method as no attempt is made by it to prevent SQL injection. Please examine
+          and add the following code to your rmdbs-tutorial.php file that you've been editing so far:</p>
+        {% highlight php %}
+        $stmt = $db->query("SELECT `id`, `country`, `animal` FROM `nationalAnimal`");
+        while($row = $stmt->fetch(PDO::FETCH_ASSOC)) {
+          echo 'id:' . $row['id'] . ', country: ' . $row['country'] . ', animal: ' . $row['animal'] . '\n';
+        }
+        {% endhighlight %}
+        <p>The query is a direct copy of the one in the SQL introduction. The new feature introduced here is the PDOStatement
+          method of fetch. This, on a row being found, returns the row in the format specified. In the case of the code here,
+          this fetch method is asked to return an associative array, or an array with a named key that matches the field names.
+          If no new row is to be found it returns a boolean false, allowing the while loop to end.</p>
+        <p>TODO: Describe other fetch styles.</p>
 
-	// get form input
-	// check to make sure it's all there
-	// escape input values for greater safety
-	$country = empty($_POST['country']) ? die ("ERROR: Enter a country") : mysql_escape_string($_POST['country']);
-	$animal = empty($_POST['animal']) ? die ("ERROR: Enter an animal") : mysql_escape_string($_POST['animal']);
+        <h2>More Prepared Statements With More Results</h2>
+        <p>The power of using a database is that you can select data meeting specific criteria and sort it before you bring it
+          into PHP. This is advantageous because your database is much better suited to that than PHP. The best policy is to,
+          in so far as it's possible, bring in only the data you need and have it already sorted. Please examine the code below
+          and add it to your rmdbs-tutorial.php file that you've been editing so far:</p>
+        {% highlight php %}
+        {% endhighlight %}
+        <p></p>
 
-	// open connection
-	$connection = mysql_connect($host, $user, $pass) or die ("Unable to connect!");
-	// select database
-	mysql_select_db($db) or die ("Unable to select database!");
+        <h2>Something Goes Wrong</h2>
 
-	// create query
-	$query = "INSERT INTO symbols (country, animal) VALUES ('$country', '$animal')";
-	// execute query
-	$result = mysql_query($query) or die ("Error in query: $query. ".mysql_error());
-
-	// print message with ID of inserted record
-	echo "New record inserted with ID ".mysql_insert_id();
-
-	// close connection
-	mysql_close($connection);
-}
-?>
-</body>
-</html>{% endhighlight %}
-	<p>Here, the user is first presented with a form asking for a country
-	and its national animal.</p>
-	<img src="images/part8-form1.png">
-	<p>Once the form is submitted, the form input is used inside to create
-	an INSERT query, which is then sent to the database with
-	the mysql_query() method. Since mysql_query()
-	returns a Boolean value indicating whether the query was successful or
-	not, it is possible to check whether the INSERT took place
-	and return an appropriate message:</p>
-	<pre>New record inserted with ID 8</pre>
-	<p>There are two new functions in the example above. The
-	mysql_escape_string() function escapes special characters
-	(like quotes) in the user input so that it can be safely entered into the
-	database; while the mysql_insert_id() returns the ID
-	generated by the previous INSERT query (useful only if the
-	table into which the INSERT occurs contains an
-	AUTO_INCREMENT field). Both these functions are also available
-	in ext/mysqli.</p>
-
-	<h2>Wiping out</h2>
-	<p>Obviously, you can also do the same thing with other data manipulation
-	statements. This next example demonstrates how to use a DELETE
-	statement with PHP to selectively delete items from the table. For variety,
-	I’m going to use ext/mysqli this time around:</p>
-	{% highlight php %}<html>
-<head></head>
-<body>
-<?php
-// set server access variables
-$host = "localhost";
-$user = "test";
-$pass = "test";
-$db = "testdb";
-// create mysqli object
-// open connection
-$mysqli = new mysqli($host, $user, $pass, $db);
-// check for connection errors
-if (mysqli_connect_errno()) {
-	die("Unable to connect!");
-}
-// if id provided, then delete that record
-if (isset($_GET['id'])) {
-	// create query to delete record
-	$query = "DELETE FROM symbols WHERE id = ".$_GET['id'];
-	// execute query
-	if ($mysqli->query($query)) {
-		// print number of affected rows
-		echo $mysqli->affected_rows." row(s) affected";
-	} else {
-		// print error message
-		echo "Error in query: $query. ".$mysqli->error;
-	}
-}
-// query to get records
-$query = "SELECT * FROM symbols";
-// execute query
-if ($result = $mysqli->query($query)) {
-	// see if any rows were returned
-	if ($result->num_rows > 0) {
-		// yes
-		// print them one after another
-		echo "<table cellpadding=10 border=1>";
-		while($row = $result->fetch_array()) {
-			echo "<tr>";
-			echo "<td>".$row[0]."</td>";
-			echo "<td>".$row[1]."</td>";
-			echo "<td>".$row[2]."</td>";
-			echo "<td><a href=".$_SERVER['PHP_SELF']."?id=".$row[0].">Delete</a></td>";
-			echo "</tr>";
-		}
-	}
-	// free result set memory
-	$result->close();
-} else {
-	// print error message
-	echo "Error in query: $query. ".$mysqli->error;
-}
-// close connection
-$mysqli->close();
-?>
-</body>
-</html>{% endhighlight %}
-	<p>Here’s what it looks like:</p>
-	<img src="images/part8-table2.png" alt="Resultant table">
-	<p>Notice my usage of the affected_rows property of the
-	mysqli object here – this returns the total number of rows
-	affected by the last operation. It’s available in ext/mysql
-	as well, as the function mysql_affected_rows().</p>
-
-	<h2>Looking inside</h2>
-	<p>PHP comes with a bunch of functions designed to tell you everything
-	you would ever want to know about the MySQL client and server, their
-	version numbers, the total number of databases available, the tables
-	inside each database, the processes running… you name
-	it, and it’s probably there. Here’s an example which uses them to give
-	you a big-picture view of what’s going on inside your MySQL RDBMS:</p>
-	{% highlight php %}<html>
-<head></head>
-<body>
-<?php
-// set server access variables
-$host = "localhost";
-$user = "root";
-$pass = "guessme";
-$db = "testdb";
-// open connection
-$connection = mysql_connect($host, $user, $pass) or die ("Unable to connect!");
-// get database list
-$query = "SHOW DATABASES";
-$result = mysql_query($query) or die ("Error in query: $query. ".mysql_error());
-echo "<ul>";
-while ($row = mysql_fetch_array($result)) {
-	echo "<li>".$row[0];
-	// for each database, get table list and print
-	$query2 = "SHOW TABLES FROM ".$row[0];
-	$result2 = mysql_query($query2) or die ("Error in query: $query2. ".mysql_error());
-	echo "<ul>";
-	while ($row2 = mysql_fetch_array($result2)) {
-		echo "<li>".$row2[0];
-	}
-	echo "</ul>";
-}
-echo "</ul>";
-// get version and host information
-echo "Client version: ".mysql_get_client_info()."<br />";
-echo "Server version: ".mysql_get_server_info()."<br />";
-echo "Protocol version: ".mysql_get_proto_info()."<br />";
-echo "Host: ".mysql_get_host_info()."<br />";
-// get server status
-$status = mysql_stat();
-echo $status;
-// close connection
-mysql_close($connection);
-?>
-</body>
-</html>{% endhighlight %}
-	<p>The first part of this script is fairly simple: it runs the SHOW
-	DATABASES query to get a list of databases, then iterates over the
-	list and runs the SHOW TABLES command to retrieve the list
-	of tables inside each. Next, the mysql_get_*_info() functions
-	provide the client version number, the MySQL version number, the version
-	number of the special MySQL client-server protocol used for communication
-	between the two, the current host name, and how it is connected to the MySQL
-	server. Finally, new in PHP 4.3.0 is the mysql_stat() function,
-	which returns a string containing status information on the MySQL server
-	(including information on server uptime, open tables, queries per second
-	and other statistical information).</p>
-
-	<h2>Oops!</h2>
-	<p>All done? Nope, not quite yet – before you go out there and start
-	building cool data-driven Web sites, you should be aware that both
-	MySQL extensions come with powerful error-tracking functions which can
-	speed up development time. Take a look at the following example, which
-	contains a deliberate error in the SELECT query string:</p>
-	{% highlight php %}<?php
-// connect
-$connection = mysql_connect("localhost", "test", "test") or die("Invalid server or user");
-mysql_select_db("testdb", $connection) or die("Invalid database");
-// query
-$query = "SELECT FROM symbols";
-// result
-$result = mysql_query($query,$connection);
-// look for errors and print
-if(!$result) {
-	$error_number = mysql_errno();
-	$error_msg = mysql_error();
-	echo "MySQL error $error_number: $error_msg";  
-}
-// disconnect
-mysql_close($connection);
-?>{% endhighlight %}
-	<p>This might output something like:</p>
-	<pre>MySQL error 1064: You have an error in your SQL syntax. Check the manual that corresponds to your MySQL server version for the right syntax to use near 'FROM symbols' at line 1</pre>
-	<p>The mysql_errno() function displays the error code returned
-	by MySQL if there’s an error in your SQL statement, while the
-	mysql_error() function returns the actual error message. Turn
-	these both on, and you’ll find that they can significantly reduce the time
-	you spend fixing bugs.</p>
-	<p>The ext/mysqli code tree includes two additional functions for
-	connection errors, mysqli_connect_errno() and
-	mysqli_connect_error(), which contain information on connection
-	(not query) errors only. Use these to debug errors in your MySQL connections,
-	as in the example below:</p>
-	{% highlight php %}<?php
-// create mysqli object
-// open connection
-$mysqli = new mysqli("localhost", "test", "test", "testdb");
-// check for connection errors
-if (mysqli_connect_errno()) {
-	die("Unable to connect: ".mysqli_connect_error());
-}
-// query
-$query = "SELECT FROM symbols";
-// execute query
-$result = $mysqli->query($query);
-// look for errors and print
-if(!$result) {
-	$error_number = $mysqli->errno;
-	$error_msg = $mysqli->error;
-	echo "MySQL error $error_number: $error_msg"; 
-}
-// disconnect
-$mysqli->close();
-?>{% endhighlight %}
-	<p>And in case you were wondering why I haven’t used object syntax for
-	these two functions in the script above, it’s actually very simple: I
-	can’t. You see, if there is an error in connecting to the server, the
-	mysqli() object will not be created, and so methods and
-	properties related to that object will not exist. For this reason, to
-	debug connection errors in ext/mysqli, you must always use
-	the procedural, rather than the object, notation.</p>
-	<p>And that’s about all I have for this issue of PHP 101. In
-	<a href="part9.html">Part Nine</a> I’m going to tell you all
-	about PHP 5′s built-in DBMS alternative, the very cool SQLite database
-	engine. Don’t miss it!</p>
-	
       </section>
       <footer>
         <p><small>Hosted on GitHub Pages &mdash; Theme by <a href="http://twitter.com/#!/michigangraham">mattgraham</a></small></p>
