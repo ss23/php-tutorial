@@ -41,7 +41,7 @@ title: Calling all operators
 	<p>Forms have always been one of quickest and easiest ways to add interactivity to your Web site. A form allows you to ask customers if they like your products, casual visitors for comments on your site, and pretty girls for their phone numbers. And PHP can simplify the task of processing the data generated from a Web-based form substantially, as this first example demonstrates.</p>
 	<p>This example contains two scripts, one containing an HTML form (named form.htm) and the other containing the form processing logic (message.php). Here's form.html:</p>
 {% highlight php %}<form action="message.php" method="post">
-	<label for="msg">Enter your message:</label><input type="text" name="msg" size="30">
+	<label for="msg">Enter your message:</label><input type="text" name="msg">
 	<input type="submit" value="Send">
 </form>{% endhighlight %}
 	<p>The critical line in this page is the <code>form</code> tag</p>
@@ -53,7 +53,7 @@ title: Calling all operators
 // Retrive form data
 $input = $_POST['msg'];
 // Use it
-echo "You said: <i>$input</i>";
+echo "You said: <em>$input</em>";
 ?>{% endhighlight %}
 	<p>When you enter some data into form.htm (let's say "Boo"), and submit it, the form processor message.php will read it and display it to you ("You said: Boo"). Thus, whenever a form is submitted to a PHP script, all variable-value pairs within that form automatically become available for use within the script, through a special PHP container variable: $_POST. You can then access the value of the form variable by using its "name" inside the $_POST container, as I did in the script above.</p>
 	<p>Obviously, PHP also supports the GET method of form submission. All you need to do is change the "method" attribute to "get", and retrieve values from $_GET instead of $_POST. The $_GET and $_POST variables are actually a special type of PHP animal called an array, which I'll be teaching you about shortly. Don't worry too much about it at the moment, just make sure you're comfortable with retrieving simple values from a form with PHP, and then scroll on down to learn about some more operators that are useful in this context. Try changing message.php to output a message with two input fields (hint: you might want to use the concationation operator we've seen before (.)).</p>
