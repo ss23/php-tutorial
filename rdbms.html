@@ -45,15 +45,15 @@ title: Relational Databases
           tutorial will strive to be simple and portable over many databases as teaching
           the finer points of SQL, especially as geared towards your specific server, is
           not within the scope of this document. But keep in mind that PDO does not abstract
-          your SQL queries it just provides a unified API for interacting with many database
-          engines, if you change engines you will likely need to modify the SQL you used.</p>
+          your SQL queries; it just provides a unified API for interacting with many database
+          engines. If you change engines you will likely need to modify the SQL you used.</p>
 
         <h2>Building Blocks</h2>
         <p>To use PDO and SQLite, or any other database, then support for the proper drivers must be
           enabled on the installation of PHP you are using. It is fairly common, but not assured,
-          that PDO and SQLite are already built in. To check this look at the output from phpinfo();
+          that PDO and SQLite are already built in. To check this look at the output from <code>phpinfo();</code>
           on the server you wish to run your code on. If you are running PHP from command line then
-          'php -m' will work.</p>
+          <code>php -m</code> will work.</p>
         <p>You should see 'PDO' and 'pdo_sqlite' as modules listed for this tutorial to work</p>
         <p>TODO: Instructions on installing</p>
 
@@ -73,10 +73,10 @@ title: Relational Databases
 |  6 | Norway    | elk      |
 +----+-----------+----------+
         </pre>
-        <p>As you can see each table has a heading that has the column (field) names and then rows of
+        <p>As you can see, each table has a heading that has the column (field) names and then rows of
           data. Each row contains a value for each field. Each field can have a specified data type.
           Each database engine has their own set of data types and you should review the manual for your
-          database of choice for further details. At it's most basic, and all that SQLite supports, are
+          database of choice for further details. At it's most basic, and all that SQLite supports are:
           integers, floating point numbers, strings, and binary blobs. Other database engines have support
           for finer grained versions of the previously mentioned types and also typically have types for
           storing dates, times, and boolean values.</p>
